@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorigin", "Sorigin\Sorigin.csproj", "{1C42048A-CF13-4A45-8534-6BA9EAC92873}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D8D9B14F-514B-4D79-8634-02620608A690}
+	EndGlobalSection
+EndGlobal
