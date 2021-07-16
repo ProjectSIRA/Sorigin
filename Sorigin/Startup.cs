@@ -6,22 +6,35 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sorigin.Authorization;
+using Sorigin.Settings;
 using System;
 
 namespace Sorigin
 {
     public class Startup
     {
+        private const string CORSOrigins = "_allowSOrigins";
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: CORSOrigins, opt =>
+                {
+                    opt.WithOrigins(deploymentSettings.CORS)
+                    .AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+
             services.AddControllers();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -43,7 +56,7 @@ namespace Sorigin
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors(CORSOrigins);
 
             app.UseRouting();
             app.UseAuthentication();
