@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Sorigin.Authorization;
 using Sorigin.Settings;
 using System;
@@ -26,6 +28,12 @@ namespace Sorigin
         public void ConfigureServices(IServiceCollection services)
         {
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
+
+            services.AddDbContext<SoriginContext>(options =>
+            {
+                options.UseNpgsql(Configuration.GetConnectionString("Default"));
+                options.UseSnakeCaseNamingConvention();
+            });
 
             services.AddCors(options =>
             {
@@ -50,8 +58,11 @@ namespace Sorigin
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SoriginContext soriginContext, ILogger<Startup> logger)
         {
+            logger.LogDebug("Ensuring that the database is created...");
+            soriginContext.Database.EnsureCreated();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
