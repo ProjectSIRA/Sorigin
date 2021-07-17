@@ -8,7 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Sorigin.Authorization;
+using Sorigin.Services;
 using Sorigin.Settings;
 using System;
 
@@ -27,7 +29,12 @@ namespace Sorigin
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<JWTSettings>(Configuration.GetSection(nameof(JWTSettings)));
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<JWTSettings>>().Value);
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
+
+            services.AddHttpClient();
+            services.AddScoped<IAuthService, SoriginAuthService>();
 
             services.AddDbContext<SoriginContext>(options =>
             {
