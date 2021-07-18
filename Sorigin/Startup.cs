@@ -34,7 +34,10 @@ namespace Sorigin
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
 
             services.AddHttpClient();
+            
             services.AddScoped<IAuthService, SoriginAuthService>();
+
+            services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
 
             services.AddDbContext<SoriginContext>(options =>
             {
