@@ -7,7 +7,7 @@ namespace Sorigin.Services
     {
         private readonly ILogger _logger;
 
-        public BCryptNETPasswordHasher(ILogger logger)
+        public BCryptNETPasswordHasher(ILogger<BCryptNETPasswordHasher> logger)
         {
             _logger = logger;
         }

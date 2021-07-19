@@ -9,7 +9,7 @@ namespace Sorigin
 
         public static object Create(string message)
         {
-            string error = message;
+            string error = string.IsNullOrEmpty(message) ? "An unknown error has occured." : message;
             return new { error };
         }
     }

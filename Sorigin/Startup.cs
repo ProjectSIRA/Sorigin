@@ -30,13 +30,17 @@ namespace Sorigin
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<JWTSettings>(Configuration.GetSection(nameof(JWTSettings)));
+            services.Configure<DiscordSettings>(Configuration.GetSection(nameof(DiscordSettings)));
+
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<JWTSettings>>().Value);
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<DiscordSettings>>().Value);
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
 
             services.AddHttpClient();
             
             services.AddScoped<IAuthService, SoriginAuthService>();
 
+            services.AddSingleton<DiscordService>();
             services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
 
             services.AddDbContext<SoriginContext>(options =>
