@@ -21,16 +21,18 @@ namespace Sorigin.Controllers
         private readonly SoriginContext _soriginContext;
         private readonly IPasswordHasher _passwordHasher;
 
+        private readonly SteamService _steamService;
         private readonly DiscordService _discordService;
     
         public AuthController(ILogger<AuthController> logger, IAuthService authService, SoriginContext soriginContext, IPasswordHasher passwordHasher,
-                                DiscordService discordService)
+                                SteamService steamService, DiscordService discordService)
         {
             _logger = logger;
             _authService = authService;
             _soriginContext = soriginContext;
             _passwordHasher = passwordHasher;
 
+            _steamService = steamService;
             _discordService = discordService;
         }
 
@@ -61,6 +63,13 @@ namespace Sorigin.Controllers
                 userCreate.Item1.Discord = discordUser;
                 await _soriginContext.SaveChangesAsync();
             }
+            else if (body.Platform == Platform.Steam)
+            {
+                SteamUser steamUser = (validationResponse.Item2 as SteamUser)!;
+                userCreate.Item1.GamePlatform = GamePlatform.Steam;
+                userCreate.Item1.Steam = steamUser;
+                await _soriginContext.SaveChangesAsync();
+            }
             string userToken = _authService.Sign(user.ID, 4, user.Role);
             return Ok(new TokenResponse { Token = userToken });
         }
@@ -77,7 +86,7 @@ namespace Sorigin.Controllers
             }
 
             // (っ＾▿＾)💨
-            bool passwordOK = _passwordHasher.Verify(body.Password, user.Hash);
+            bool passwordOK = await Task.Run(() => _passwordHasher.Verify(body.Password, user.Hash));
 
             if (!passwordOK)
             {
@@ -101,7 +110,12 @@ namespace Sorigin.Controllers
             if (body.Platform == Platform.Discord)
             {
                 DiscordUser discordUser = (validationResponse.Item2 as DiscordUser)!;
-                user = await _soriginContext.Users.Include(u => u.Discord).FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
+                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
+            }
+            else if (body.Platform == Platform.Steam)
+            {
+                SteamUser steamUser = (validationResponse.Item2 as SteamUser)!;
+                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
             }
 
             if (user is null)
@@ -135,6 +149,13 @@ namespace Sorigin.Controllers
                 user.Discord = discordUser;
                 await _soriginContext.SaveChangesAsync();
             }
+            else if (body.Platform == Platform.Steam)
+            {
+                SteamUser steamUser = (validationResponse.Item2 as SteamUser)!;
+                user.GamePlatform = GamePlatform.Steam;
+                user.Steam = steamUser;
+                await _soriginContext.SaveChangesAsync();
+            }
             return NoContent();
         }
 
@@ -160,6 +181,16 @@ namespace Sorigin.Controllers
                 }
                 bool alreadyExists = await _soriginContext.Users.AnyAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
                 return (!alreadyExists, discordUser, null);
+            }
+            else if (platform == Platform.Steam)
+            {
+                SteamUser? steamUser = await _steamService.GetProfile(platformToken);
+                if (steamUser is null)
+                {
+                    return (false, null, "Unable to get user profile.");
+                }
+                bool alreadyExists = await _soriginContext.Users.AnyAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
+                return (!alreadyExists, steamUser, null);
             }
             return (false, null, "Could not find authentication method.");
         }

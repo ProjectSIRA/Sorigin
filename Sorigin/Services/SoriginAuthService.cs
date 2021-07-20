@@ -29,7 +29,7 @@ namespace Sorigin.Services
 
         public async Task<User?> GetUser(Guid? id)
         {
-            return await _soriginContext.Users.FirstOrDefaultAsync(u => u.ID == id);
+            return await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.ID == id);
         }
 
         public string Sign(Guid id, float lengthInHours = 1344, Role role = Role.None)

@@ -30,9 +30,11 @@ namespace Sorigin
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<JWTSettings>(Configuration.GetSection(nameof(JWTSettings)));
+            services.Configure<SteamSettings>(Configuration.GetSection(nameof(SteamSettings)));
             services.Configure<DiscordSettings>(Configuration.GetSection(nameof(DiscordSettings)));
 
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<JWTSettings>>().Value);
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<SteamSettings>>().Value);
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<DiscordSettings>>().Value);
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
 
@@ -40,6 +42,7 @@ namespace Sorigin
             
             services.AddScoped<IAuthService, SoriginAuthService>();
 
+            services.AddSingleton<SteamService>();
             services.AddSingleton<DiscordService>();
             services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
 
