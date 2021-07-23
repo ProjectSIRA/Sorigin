@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 
 namespace Sorigin
 {
@@ -8,7 +9,9 @@ namespace Sorigin
     {
         public static void Main(string[] args)
         {
-            LoggerConfiguration logConfig = new LoggerConfiguration().WriteTo.Console();
+            LoggerConfiguration logConfig = new LoggerConfiguration()
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Error)
+                .WriteTo.Console();
             Log.Logger = logConfig.CreateLogger();
 
             CreateHostBuilder(args).Build().Run();

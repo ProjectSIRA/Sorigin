@@ -7,14 +7,19 @@ namespace Sorigin
     public class SoriginContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
-        private static ILoggerFactory ContextLoggerFactory => LoggerFactory.Create(b => b.AddConsole().AddFilter("", LogLevel.Information));
+        private readonly ILogger _logger;
 
-        public SoriginContext(DbContextOptions<SoriginContext> options) : base(options) { }
+        public SoriginContext(ILogger<SoriginContext> logger, DbContextOptions<SoriginContext> options) : base(options)
+        {
+            _logger = logger;
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseLoggerFactory(ContextLoggerFactory);
-            optionsBuilder.LogTo((string _) => { });
+            optionsBuilder.LogTo((string _) =>
+            {
+                
+            });
         }
     }
 }

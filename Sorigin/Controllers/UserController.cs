@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Sorigin.Authorization;
 using Sorigin.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +31,29 @@ namespace Sorigin.Controllers
         {
             _logger.LogInformation("Fetching all usernames.");
             return (await _soriginContext.Users.ToArrayAsync()).Select(s => s.Username);
+        }
+
+        [HttpGet("by-username/{name}")]
+        public async Task<ActionResult<User>> GetUserByUsername(string name)
+        {
+            name = name.ToLower();
+            User? user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.Username.ToLower() == name);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
+        [HttpGet("by-id/{id}")]
+        public async Task<ActionResult<User>> GetUserByUsername(Guid id)
+        {
+            User? user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.ID == id);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
         }
 
         [HttpPost]
