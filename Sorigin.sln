@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31512.422
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorigin", "Sorigin\Sorigin.csproj", "{1C42048A-CF13-4A45-8534-6BA9EAC92873}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sorigin", "Sorigin\Sorigin.csproj", "{1C42048A-CF13-4A45-8534-6BA9EAC92873}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorigin.Web", "Sorigin.Web\Sorigin.Web.csproj", "{0B9D1FE5-3BBF-4AE9-8BAD-C9F719FD92C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C42048A-CF13-4A45-8534-6BA9EAC92873}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B9D1FE5-3BBF-4AE9-8BAD-C9F719FD92C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B9D1FE5-3BBF-4AE9-8BAD-C9F719FD92C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B9D1FE5-3BBF-4AE9-8BAD-C9F719FD92C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B9D1FE5-3BBF-4AE9-8BAD-C9F719FD92C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
