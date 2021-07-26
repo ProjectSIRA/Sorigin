@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import { Button, Container, Navbar } from 'react-bulma-components'
 
 export default function SoriginNavbar() {
@@ -7,7 +8,7 @@ export default function SoriginNavbar() {
       <Container>
         <Navbar.Brand>
           <Navbar.Item href="#">
-            <img
+            <Image
               alt="Bulma: a modern CSS framework based on Flexbox"
               height="28"
               src="https://bulma.io/images/bulma-logo.png"
