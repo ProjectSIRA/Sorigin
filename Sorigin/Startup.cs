@@ -77,8 +77,15 @@ namespace Sorigin
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SoriginContext soriginContext, ILogger<Startup> logger)
         {
-            logger.LogDebug("Ensuring that the database is created...");
-            soriginContext.Database.EnsureCreated();
+            logger.LogInformation("Ensuring that the database is created...");
+            try
+            {
+                soriginContext.Database.Migrate();
+            }
+            catch
+            {
+                logger.LogInformation("No migration needed.");
+            }
 
             if (env.IsDevelopment())
             {

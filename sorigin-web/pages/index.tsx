@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import React from 'react'
 import { Container, Content, Section } from 'react-bulma-components'
-import SoriginNavbar from '../components/SoriginNavbar'
 
 export default function Home() {
   return (

@@ -2,8 +2,13 @@
 
 namespace Sorigin.Models.Platforms
 {
-    public record DiscordUser(string Id, string Username, string Discriminator, string Avatar)
+    public record DiscordUser
     {
+        public string Id { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string Discriminator { get; set; } = null!;
+        public string Avatar { get; set; } = null!;
+
         [JsonPropertyName("avatarURL")]
         public string ProfileURL
         {

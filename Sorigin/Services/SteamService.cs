@@ -44,11 +44,10 @@ namespace Sorigin.Services
                     return null;
                 var player = steamSummaryResponse.Response.Players[0];
                 _logger.LogDebug("User Profile {PersonaName} ({SteamID})", player.PersonaName, player.SteamID);
-                return new SteamUser(player.SteamID, player.PersonaName, player.AvatarHash);
+                return new SteamUser { Id = player.SteamID, Username = player.PersonaName, Avatar = player.AvatarHash };
             }
             return null;
         }
-
 
         public class SteamResponse<T> where T : notnull
         {

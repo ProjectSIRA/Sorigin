@@ -57,7 +57,7 @@ namespace Sorigin.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize("edit/description")]
         public async Task<ActionResult<User>> EditDescription([FromBody] EditDescriptionBody body)
         {
             User user = (await _authService.GetUser(User.GetID()))!;
@@ -76,9 +76,34 @@ namespace Sorigin.Controllers
             return Ok(user);
         }
 
+        [HttpPost]
+        [Authorize("edit/username")]
+        public async Task<ActionResult<User>> ChangeUsername([FromBody] ChangeUsernameBody body)
+        {
+            if (string.IsNullOrWhiteSpace(body.Username))
+            {
+                return BadRequest(Error.Create("Username cannot be empty."));
+            }
+            string lUsername = body.Username.ToLower();
+            User user = (await _authService.GetUser(User.GetID()))!;
+            User? existing = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == lUsername);
+            if (existing is not null)
+            {
+                return BadRequest(Error.Create("The username is already in use."));
+            }
+            user.Username = body.Username;
+            await _soriginContext.SaveChangesAsync();
+            return Ok(user);
+        }
+
         public class EditDescriptionBody
         {
             public string? NewDescription { get; set; } = null!;
+        }
+
+        public class ChangeUsernameBody
+        {
+            public string Username { get; set; } = null!;
         }
     }
 }

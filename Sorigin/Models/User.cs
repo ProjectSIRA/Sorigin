@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sorigin.Models.Platforms;
 using System;
-using System.Text.Json.Serialization;
 
 namespace Sorigin.Models
 {
@@ -13,12 +12,8 @@ namespace Sorigin.Models
         public string? Bio { get; set; }
         public string Username { get; set; } = null!;
         public GamePlatform GamePlatform { get; set; }
-        
-        [JsonIgnore]
-        public string Hash { get; set; } = null!;
 
         // <---- Platforms ---->
-
         public DiscordUser? Discord { get; set; }
         public SteamUser? Steam { get; set; }
     }
