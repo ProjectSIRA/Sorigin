@@ -185,7 +185,7 @@ namespace Sorigin.Controllers
                 bool alreadyExists = await _soriginContext.Users.AnyAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
                 if (!alreadyExists)
                 {
-                    var userCreate = await CreateUser(discordUser.Id);
+                    var userCreate = await CreateUser(discordUser.Username);
                     if (userCreate.Item1 is not null)
                     {
                         userCreate.Item1.Discord = discordUser;
@@ -204,7 +204,7 @@ namespace Sorigin.Controllers
                 bool alreadyExists = await _soriginContext.Users.AnyAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
                 if (!alreadyExists)
                 {
-                    var userCreate = await CreateUser(steamUser.Id);
+                    var userCreate = await CreateUser(steamUser.Username);
                     if (userCreate.Item1 is not null)
                     {
                         userCreate.Item1.Steam = steamUser;
@@ -230,7 +230,7 @@ namespace Sorigin.Controllers
             {
                 _logger.LogWarning("A user attempted to create the username with {username}.", username);
                 // If there's already a user with that username, assign them a default
-                username = Guid.NewGuid().ToString();
+                username += "_" + Guid.NewGuid().ToString();
             }
 
             // Create and add the user
