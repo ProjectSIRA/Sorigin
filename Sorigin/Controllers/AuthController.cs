@@ -79,7 +79,7 @@ namespace Sorigin.Controllers
             if (body.Platform == Platform.Discord)
             {
                 DiscordUser discordUser = (validationResponse.Item2 as DiscordUser)!;
-                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
+                user = await _soriginContext.Users.Include(u => u.Discord).FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
                 if (user is not null)
                 {
                     if (user.Discord is null)
@@ -99,7 +99,7 @@ namespace Sorigin.Controllers
             else if (body.Platform == Platform.Steam)
             {
                 SteamUser steamUser = (validationResponse.Item2 as SteamUser)!;
-                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
+                user = await _soriginContext.Users.Include(u => u.Steam).FirstOrDefaultAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
                 if (user is not null)
                 {
                     if (user.Steam is null)
