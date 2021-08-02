@@ -3,6 +3,7 @@ using IPA.Loader;
 using SiraUtil;
 using SiraUtil.Attributes;
 using SiraUtil.Zenject;
+using Sorigin.Installers;
 using IPALogger = IPA.Logging.Logger;
 
 namespace Sorigin
@@ -19,6 +20,7 @@ namespace Sorigin
                 Container.BindInstance(new UBinder<Plugin, PluginMetadata>(metadata)).AsCached();
             });
             zenjector.OnApp<SoriginInstaller>();
+            zenjector.OnMenu<SoriginMenuInstaller>();
         }
 
         [OnEnable]

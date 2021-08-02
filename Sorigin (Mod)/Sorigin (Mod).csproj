@@ -37,6 +37,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Views\sorigin-view.bsml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="BSML">
+          <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
         <Reference Include="Hive.Versioning">
           <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
           <Private>False</Private>
@@ -137,6 +145,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="manifest.json" />
+        <EmbeddedResource Include="Views\sorigin-view.bsml" />
     </ItemGroup>
 
     <ItemGroup>	

@@ -1,7 +1,7 @@
 ﻿using Sorigin.Services;
 using Zenject;
 
-namespace Sorigin
+namespace Sorigin.Installers
 {
     internal class SoriginInstaller : Installer
     {
