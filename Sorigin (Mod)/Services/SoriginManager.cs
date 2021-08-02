@@ -42,6 +42,7 @@ namespace Sorigin.Services
                 PlatformUserAuthTokenData tokenData = await _platformUserModel.GetUserAuthToken();
                 if (tokenData.validPlatformEnvironment == PlatformUserAuthTokenData.PlatformEnviroment.Production)
                 {
+                    _siraLog.Debug("Attempting to login via Steam.");
                     UserInfo userInfo = await _platformUserModel.GetUserInfo();
                     await _soriginNetworkService.LoginThroughSteam(userInfo.platformUserId, tokenData.token);
                 }
@@ -52,18 +53,26 @@ namespace Sorigin.Services
         {
             try
             {
+                _siraLog.Debug("Token has been received. Fetching user profile.");
                 var response = await _http.GetAsync("https://sorigin.org/api/auth/@me", token);
                 if (!response.Successful)
                     return;
 
                 if (Token != null)
+                {
+                    _siraLog.Logger.Notice("Killing session...");
                     SessionExpired?.Invoke();
+                }
 
+                _siraLog.Debug("Deserialzing ser");
                 SoriginUser user = JsonConvert.DeserializeObject<SoriginUser>(response.Content!);
                 _sessionStarted = DateTime.Now;
                 Player = user;
                 Token = token;
 
+                _siraLog.Info($"Successfully logged in '{user.Username}'.");
+
+                _siraLog.Debug("Sending out log in event.");
                 LoggedIn?.Invoke(Player);
             }
             catch (Exception e)
@@ -78,6 +87,7 @@ namespace Sorigin.Services
             {
                 if (DateTime.Now > _sessionStarted.Value.AddHours(4) && Player != null)
                 {
+                    _siraLog.Debug("Ending the user session.");
                     SessionExpired?.Invoke();
                     Player = null;
                     Token = null;

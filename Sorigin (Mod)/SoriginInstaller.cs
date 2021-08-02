@@ -7,6 +7,7 @@ namespace Sorigin
     {
         public override void InstallBindings()
         {
+            Container.Bind<Http>().AsSingle();
             Container.BindInterfacesTo<SoriginManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<SoriginGrantService>().AsSingle();
             Container.BindInterfacesAndSelfTo<SoriginNetworkService>().AsSingle();

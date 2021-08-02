@@ -1,17 +1,23 @@
 ﻿using IPA;
+using IPA.Loader;
 using SiraUtil;
+using SiraUtil.Attributes;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
 
 namespace Sorigin
 {
-    [Plugin(RuntimeOptions.DynamicInit)]
+    [Plugin(RuntimeOptions.DynamicInit), Slog]
     public class Plugin
     {
         [Init]
-        public Plugin(IPALogger logger, Zenjector zenjector)
+        public Plugin(IPALogger logger, Zenjector zenjector, PluginMetadata metadata)
         {
-            zenjector.On<PCAppInit>().Pseudo(Container => Container.BindLoggerAsSiraLogger(logger));
+            zenjector.On<PCAppInit>().Pseudo(Container =>
+            {
+                Container.BindLoggerAsSiraLogger(logger);
+                Container.BindInstance(new UBinder<Plugin, PluginMetadata>(metadata)).AsCached();
+            });
             zenjector.OnApp<SoriginInstaller>();
         }
 
