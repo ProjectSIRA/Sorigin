@@ -14,6 +14,7 @@ namespace Sorigin.Services
         private readonly IPlatformUserModel _platformUserModel;
         private readonly SoriginNetworkService _soriginNetworkService;
         private DateTime? _sessionStarted;
+        private bool _didSteam;
 
         public event Action? SessionExpired;
         public event Action<SoriginUser>? LoggedIn;
@@ -44,7 +45,7 @@ namespace Sorigin.Services
                 {
                     _siraLog.Debug("Attempting to login via Steam.");
                     UserInfo userInfo = await _platformUserModel.GetUserInfo();
-                    await _soriginNetworkService.LoginThroughSteam(userInfo.platformUserId, tokenData.token);
+                    _didSteam = await _soriginNetworkService.LoginThroughSteam(userInfo.platformUserId, tokenData.token);
                 }
             }
         }
@@ -64,16 +65,28 @@ namespace Sorigin.Services
                     SessionExpired?.Invoke();
                 }
 
-                _siraLog.Debug("Deserialzing ser");
+                _siraLog.Debug("Deserialzing user");
                 SoriginUser user = JsonConvert.DeserializeObject<SoriginUser>(response.Content!);
                 _sessionStarted = DateTime.Now;
                 Player = user;
                 Token = token;
 
                 _siraLog.Info($"Successfully logged in '{user.Username}'.");
-
-                _siraLog.Debug("Sending out log in event.");
                 LoggedIn?.Invoke(Player);
+                
+                if (!_didSteam)
+                {
+                    if (_platformUserModel is SteamPlatformUserModel)
+                    {
+                        _siraLog.Debug("Fetching Steam auth token.");
+                        PlatformUserAuthTokenData tokenData = await _platformUserModel.GetUserAuthToken();
+                        if (tokenData.validPlatformEnvironment == PlatformUserAuthTokenData.PlatformEnviroment.Production)
+                        {
+                            _siraLog.Debug("Trying to add Steam as a platform...");
+                            await _soriginNetworkService.AddSteam(token, tokenData.token);
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -89,6 +102,7 @@ namespace Sorigin.Services
                 {
                     _siraLog.Debug("Ending the user session.");
                     SessionExpired?.Invoke();
+                    _sessionStarted = null;
                     Player = null;
                     Token = null;
                 }

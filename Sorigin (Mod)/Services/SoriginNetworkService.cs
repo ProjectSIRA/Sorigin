@@ -20,14 +20,15 @@ namespace Sorigin.Services
             _soriginGrantService = soriginGrantService;
         }
 
-        public async Task LoginThroughSteam(string id, string token)
+        public async Task<bool> LoginThroughSteam(string id, string token)
         {
+            token = token.Replace("-", string.Empty);
             _siraLog.Debug("Checking if the user exists in the Steam database...");
             var response = await _http.GetAsync($"https://sorigin.org/api/user/by-steam/{id}");
             if (!response.Successful)
             {
                 _siraLog.Debug("This user doesn't have their Steam linked to a Sorigin account.");
-                return;
+                return false;
             }
 
             _siraLog.Debug("Great, their Steam account is connected. Authorizing using Steam token...");
@@ -35,11 +36,25 @@ namespace Sorigin.Services
             if (!response.Successful)
             {
                 _siraLog.Warning("The Steam token could not be authorized. Either the web server is down, the Steam session is invalid (unlikely), or the user has pirated the game.");
-                return;
+                return false;
             }
 
             _siraLog.Debug("Sorigin token received (Steam). Sending out event.");
             TokenReceived?.Invoke(JsonConvert.DeserializeObject<TokenBody>(response.Content!).Token);
+            return true;
+        }
+
+        public async Task AddSteam(string soriginToken, string steamToken)
+        {
+            steamToken = steamToken.Replace("-", string.Empty);
+            var response = await _http.PostAsync("https://sorigin.org/api/auth/add", JsonConvert.SerializeObject(new { platform = 1, token = steamToken }), soriginToken);
+            if (!response.Successful)
+            {
+                _siraLog.Warning("The Steam token could not be authorized. Either the web server is down, the Steam session is invalid (unlikely), the user has pirated the game, or they've already been added.");
+                _siraLog.Warning(response.Content);
+                return;
+            }
+            _siraLog.Logger.Notice("Added Steam as an authentication platform to the current user's Sorigin account.");
         }
 
         public void Initialize()

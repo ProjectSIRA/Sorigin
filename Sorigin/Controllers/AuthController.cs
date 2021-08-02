@@ -134,7 +134,7 @@ namespace Sorigin.Controllers
         [HttpPost("add")]
         public async Task<ActionResult> AddPlatform([FromBody] TokenLoginBody body)
         {
-            var validationResponse = await ValidateUser(body.Platform, body.Token);
+            var validationResponse = await ValidateUser(body.Platform, body.Token, false);
             if (!validationResponse.Item1)
             {
                 if (validationResponse.Item2 is not null)
@@ -162,7 +162,7 @@ namespace Sorigin.Controllers
         // object?: User
         // string?: Error
         // string?: ID
-        private async Task<ValueTuple<bool, object?, string?, string?>> ValidateUser(Platform platform, string platformToken)
+        private async Task<ValueTuple<bool, object?, string?, string?>> ValidateUser(Platform platform, string platformToken, bool createIfDoesntExist = true)
         {
             _logger.LogInformation("Validating a user through {platform}", platform);
             if (platform == Platform.Discord)
@@ -182,8 +182,8 @@ namespace Sorigin.Controllers
                 {
                     return (false, null, "Unable to get user profile.", null);
                 }
-                bool alreadyExists = await _soriginContext.Users.AnyAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
-                if (!alreadyExists)
+                bool alreadyExists = await _soriginContext.Users.Include(u => u.Discord).AnyAsync(u => u.Discord != null && u.Discord.Id == discordUser.Id);
+                if (!alreadyExists && createIfDoesntExist)
                 {
                     var userCreate = await CreateUser(discordUser.Username);
                     if (userCreate.Item1 is not null)
@@ -201,8 +201,8 @@ namespace Sorigin.Controllers
                 {
                     return (false, null, "Unable to get user profile.", null);
                 }
-                bool alreadyExists = await _soriginContext.Users.AnyAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
-                if (!alreadyExists)
+                bool alreadyExists = await _soriginContext.Users.Include(u => u.Steam).AnyAsync(u => u.Steam != null && u.Steam.Id == steamUser.Id);
+                if (!alreadyExists && createIfDoesntExist)
                 {
                     var userCreate = await CreateUser(steamUser.Username);
                     if (userCreate.Item1 is not null)
