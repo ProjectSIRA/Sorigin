@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
+  "id": "Sorigin",
+  "name": "Sorigin",
+  "author": "SIRA",
+  "version": "1.0.0",
+  "description": "An authorization platform for Beat Saber.",
+  "gameVersion": "1.16.4",
+  "dependsOn": {
+    "BSIPA": "^4.1.4",
+    "SiraUtil": "^2.4.0"
+  }
+}

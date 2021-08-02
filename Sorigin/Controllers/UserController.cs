@@ -56,6 +56,17 @@ namespace Sorigin.Controllers
             return Ok(user);
         }
 
+        [HttpGet("by-steam/{id}")]
+        public async Task<ActionResult<User>> GetSteamUser(string id)
+        {
+            User? user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.Steam != null && u.Steam.Id == id);
+            if (user is null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
         [HttpPost]
         [Authorize("edit/description")]
         public async Task<ActionResult<User>> EditDescription([FromBody] EditDescriptionBody body)
