@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using IPA.Utilities.Async;
+using Newtonsoft.Json;
 using SiraUtil.Tools;
 using Sorigin.Models;
 using System;
@@ -62,7 +63,7 @@ namespace Sorigin.Services
                 if (Token != null)
                 {
                     _siraLog.Logger.Notice("Killing session...");
-                    SessionExpired?.Invoke();
+                    MainThread(() => SessionExpired?.Invoke());
                 }
 
                 _siraLog.Debug("Deserialzing user");
@@ -72,7 +73,7 @@ namespace Sorigin.Services
                 Token = token;
 
                 _siraLog.Info($"Successfully logged in '{user.Username}'.");
-                LoggedIn?.Invoke(Player);
+                MainThread(() => LoggedIn?.Invoke(Player));
                 
                 if (!_didSteam)
                 {
@@ -112,6 +113,11 @@ namespace Sorigin.Services
         public void Dispose()
         {
             _soriginNetworkService.TokenReceived -= SoriginNetworkService_TokenReceived;
+        }
+
+        private static void MainThread(Action action)
+        {
+            UnityMainThreadTaskScheduler.Factory.StartNew(action);
         }
     }
 }
