@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-    import type User from '../types/user'
+    import type User from '$lib/types/user'
     import { SORIGIN_URL } from '../utils/env'
 
     /**
@@ -23,7 +23,10 @@
 </script>
 
 <script lang="ts">
-    import { GamePlatform } from '../types/user'
+    import ScoreSaber from '$lib/buttons/ScoreSaber.svelte'
+    import Discord from '$lib/buttons/Discord.svelte'
+    import Steam from '$lib/buttons/Steam.svelte'
+    import { GamePlatform } from '$lib/types/user'
     import { getPFP, Size } from '../utils/users'
     export let user: User
 </script>
@@ -38,17 +41,17 @@
     </div>
     <div class="col-xs-7">
         <h1>{user.username}</h1>
-        <p>We don't know much about Auros... but we bet they're cool!</p>
+        <p>We don't know much about {user.username}... but we bet they're cool!</p>
     </div>
     <div class="col-xs-2">
         {#if user.steam !== null}
-            <button>Steam</button>
+            <Steam user={user}></Steam>
         {/if}
         {#if user.discord !== null}
-            <button>Discord</button>
+            <Discord user={user}></Discord>
         {/if}
         {#if user.gamePlatform === GamePlatform.Steam}
-            <button>ScoreSaber</button>
+            <ScoreSaber user={user}></ScoreSaber>
         {/if}
     </div>
 </div>

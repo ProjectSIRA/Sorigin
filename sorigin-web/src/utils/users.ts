@@ -1,4 +1,4 @@
-import type User from 'src/types/user'
+import type User from '$lib/types/user'
 
 export enum Size {
     Small,

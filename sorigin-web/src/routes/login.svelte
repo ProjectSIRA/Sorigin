@@ -31,7 +31,7 @@
     <div></div>
 </div>
 
-<style lang="css">
+<style lang="css" scoped>
     :root:not([data-theme="dark"]) {
         --primary: #7289DA ;
         --primary-hover: #4E5D94;
