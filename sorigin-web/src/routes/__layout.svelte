@@ -1,13 +1,18 @@
 <nav class="container-fluid">
     <ul>
-        <li><h3>Sorigin</h3></li>
+        <li><a href="/" class="contrast">Sorigin</a></li>
     </ul>
     <ul>
-        <li>Log In</li>
+        <li><a href="/login" class="secondary">Log In</a></li>
     </ul>
 </nav>
 
-<slot></slot>
+<body>
+    <main class="container">
+        <slot></slot>  
+    </main>
+</body>
+
 
 <style lang="css" global>
 	@media only screen and (prefers-color-scheme: dark) {
