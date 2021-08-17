@@ -1,5 +1,7 @@
 <nav class="container-fluid">
-    <ul></ul>
+    <ul>
+        <li><h3>Sorigin</h3></li>
+    </ul>
     <ul>
         <li>Log In</li>
     </ul>
@@ -10,7 +12,7 @@
 <style lang="css" global>
 	@media only screen and (prefers-color-scheme: dark) {
 		:root:not([data-theme="light"]) {
-            --background-color: #222222;
+            --background-color: #0e0e0e;
 		}
 	}
 </style>
