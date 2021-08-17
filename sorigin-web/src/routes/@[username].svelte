@@ -41,7 +41,11 @@
     </div>
     <div class="col-xs-7">
         <h1>{user.username}</h1>
-        <p>We don't know much about {user.username}... but we bet they're cool!</p>
+        {#if user.bio !== null}
+            <p>{user.bio}</p>
+        {:else}
+            <p>We don't know much about {user.username}... but we bet they're cool!</p>
+        {/if}
     </div>
     <div class="col-xs-2">
         {#if user.steam !== null}
