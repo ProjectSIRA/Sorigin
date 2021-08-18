@@ -1,14 +1,16 @@
 <script lang="ts" context="module">
     import type User from '$lib/types/user'
-    import { SORIGIN_URL } from '../utils/env'
+    import { REFETCH_URL, SORIGIN_URL } from '../utils/env'
+    import { browser } from '$app/env'
 
-    export const ssr = false
+    export const ssr = true
 
     /**
 	* @type {import('@sveltejs/kit').Load}
 	*/
     export async function load({ page, fetch }) {
-        const url = `${SORIGIN_URL}/api/user/by-username/${page.params.username}`
+        const backend = browser ? SORIGIN_URL : REFETCH_URL
+        const url = `${backend}/api/user/by-username/${page.params.username}`
         const res = await fetch(url)
 
         if (res.ok) {
