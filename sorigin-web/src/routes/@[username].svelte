@@ -2,6 +2,8 @@
     import type User from '$lib/types/user'
     import { SORIGIN_URL } from '../utils/env'
 
+    export const ssr = false
+
     /**
 	* @type {import('@sveltejs/kit').Load}
 	*/
