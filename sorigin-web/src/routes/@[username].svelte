@@ -65,7 +65,11 @@
 </div>
 
 <style>
+
     #so-curved {
         border-radius: 10%;
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
     }
 </style>
