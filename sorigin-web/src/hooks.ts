@@ -1,9 +1,24 @@
-import { REFETCH_URL, SORIGIN_URL } from './utils/env'
+import type AuthedUser from '$lib/types/authedUser'
+import cookie from 'cookie'
 
-/** @type {import('@sveltejs/kit').ExternalFetch} */
-export async function externalFetch(request: Request) {
-    if (request.url.startsWith(SORIGIN_URL)) {
-        request = new Request(request.url.replace(SORIGIN_URL, REFETCH_URL), request)
+export async function handle({ request, resolve }) {
+    const cookies = cookie.parse(request.headers.cookie || '')
+    if (cookies.user !== undefined && cookies.user !== null) {
+        request.locals.user = JSON.parse(cookies.user) as AuthedUser
     }
-    return fetch(request)
+    const response = await resolve(request)
+
+    if (request.locals.user !== undefined && cookies.user === undefined) {
+        let fourHours = new Date()
+        fourHours.setTime(fourHours.getTime() + 60 * 1000)
+        response.headers['set-cookie'] = `user=${JSON.stringify(request.locals.user) || ''}; expires=${fourHours.toUTCString()}; Path=/; HttpOnly`
+    }
+
+    return response
+}
+
+export async function getSession(request) {
+    return {
+        user: request.locals.user
+    }
 }

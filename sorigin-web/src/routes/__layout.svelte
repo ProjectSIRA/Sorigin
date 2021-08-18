@@ -1,6 +1,4 @@
-<script lang="ts">
-    import { authedUser } from '$lib/stores/usersStore'
-</script>
+
 
 <svelte:head>
     <meta name="title" content="Sorigin">
@@ -10,6 +8,31 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="language" content="English">
 </svelte:head>
+
+<script lang="ts" context="module">
+    import type AuthedUser from '$lib/types/authedUser'
+    
+    export async function load({ session }) {
+        return {
+            props: {
+                user: session.user !== undefined ? session.user : null
+            }
+        }
+    }
+
+</script>
+
+<script lang="ts">
+    import { authedUser } from '$lib/stores/usersStore'
+    import { onMount } from 'svelte'
+
+    export let user: AuthedUser | null
+
+    onMount(() => {
+        authedUser.set(user)
+    })
+
+</script>
 
 <nav class="container-fluid">
     <ul>
