@@ -8,7 +8,10 @@ export async function handle({ request, resolve }) {
     }
     const response = await resolve(request)
 
-    if (request.locals.user !== undefined && cookies.user === undefined) {
+    if (request.locals.user === 'delete') {
+        response.headers['set-cookie'] = `user=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    }
+    else if (request.locals.user !== undefined && cookies.user === undefined) {
         let fourHours = new Date()
         fourHours.setTime(fourHours.getTime() + 60 * 1000)
         response.headers['set-cookie'] = `user=${JSON.stringify(request.locals.user) || ''}; expires=${fourHours.toUTCString()}; Path=/; HttpOnly`

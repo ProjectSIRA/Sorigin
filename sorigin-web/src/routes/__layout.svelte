@@ -41,6 +41,7 @@
     <ul>
         {#if $authedUser !== null}
             <li><a href="/@{$authedUser.user.username}" class="secondary">{$authedUser.user.username}</a></li>
+            <li><a href="/logout" class="secondary">Log Out</a></li>
         {:else}
             <li><a href="/login" class="secondary">Log In</a></li>
         {/if}
