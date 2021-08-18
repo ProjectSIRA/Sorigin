@@ -7,7 +7,7 @@
     import { authedUser } from '$lib/stores/usersStore'
     import type AuthedUser from '$lib/types/authedUser'
     import type User from '$lib/types/user'
-
+    
     export async function load({ page, fetch }) {
         const grant = page.query.get('grant')
 
@@ -57,6 +57,19 @@
 
 </script>
 
+<script lang="ts">
+    import { goto } from '$app/navigation'
+    import { page } from '$app/stores'
+    import { onMount } from 'svelte'
+    
+    const grant = $page.query.get('grant')
+
+    onMount(async () => {
+        if (grant !== undefined && grant !== null) {
+            await goto('/')
+        }
+    })
+</script>
 
 <article>
     <h3>What is Sorigin?</h3>
