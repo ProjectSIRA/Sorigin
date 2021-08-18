@@ -2,7 +2,7 @@ FROM mhart/alpine-node:12
 
 # install dependencies
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock ./
 RUN yarn --frozen-lockfile
 
 # Copy all local files into the image.
