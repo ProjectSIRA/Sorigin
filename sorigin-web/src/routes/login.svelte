@@ -4,12 +4,14 @@
 
 <script lang="ts">
     import { page } from '$app/stores'
-    import { SORIGIN_URL } from '../../src/utils/env'
+    import { REDIRECT_URL, SORIGIN_URL } from '../../src/utils/env'
 
     function handleDiscord() {
-        console.log(SORIGIN_URL)
-        const redirectURL = $page.query.get('redirect_url')
+        let redirectURL = $page.query.get('redirect_url')
         let url = SORIGIN_URL + '/api/auth/discord/auth'
+        if (redirectURL === undefined || redirectURL === null) {
+            redirectURL = REDIRECT_URL
+        }
         if (redirectURL !== undefined) {
             url += '?redirect_url=' + redirectURL
         }

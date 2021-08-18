@@ -1,3 +1,7 @@
+<script lang="ts">
+    import { authedUser } from '$lib/stores/usersStore'
+</script>
+
 <svelte:head>
     <meta name="title" content="Sorigin">
     <meta name="description" content="A player-unifying authorization platform for the Beat Saber community.">
@@ -12,7 +16,11 @@
         <li><a href="/" class="contrast">Sorigin</a></li>
     </ul>
     <ul>
-        <li><a href="/login" class="secondary">Log In</a></li>
+        {#if $authedUser !== null}
+            <li><a href="/@{$authedUser.user.username}" class="secondary">{$authedUser.user.username}</a></li>
+        {:else}
+            <li><a href="/login" class="secondary">Log In</a></li>
+        {/if}
     </ul>
 </nav>
 

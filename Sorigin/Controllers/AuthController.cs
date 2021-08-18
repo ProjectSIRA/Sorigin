@@ -9,6 +9,7 @@ using Sorigin.Services;
 using Sorigin.Settings;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -92,6 +93,11 @@ namespace Sorigin.Controllers
                         user.Discord!.Avatar = discordUser.Avatar;
                         user.Discord.Username = discordUser.Username;
                         user.Discord.Discriminator = discordUser.Discriminator;
+                        await _soriginContext.SaveChangesAsync();
+                    }
+                    if (!user.Role.HasFlag(Role.Owner) && _discordSettings.Roots.Contains(discordUser.Id))
+                    {
+                        user.Role = Role.Owner | Role.Admin | Role.Verified;
                         await _soriginContext.SaveChangesAsync();
                     }
                 }
