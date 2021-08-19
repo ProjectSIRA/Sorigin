@@ -45,7 +45,6 @@
 
             const bioUpdateURL = `${browser ? SORIGIN_URL : REFETCH_URL}/api/user/edit/description`
             
-
             const res = await fetch(bioUpdateURL, {
                 method: 'POST',
                 headers: {
@@ -86,6 +85,11 @@
 
             let lUsername = username.toLowerCase()
             if (users.find(x => x.toLowerCase() === lUsername) !== undefined) {
+                usernameTaken = true
+                await new Promise(function(resolve) {
+                    setTimeout(resolve, 3000)
+                });
+                usernameTaken = false
                 return
             }
         }
@@ -97,11 +101,10 @@
 
 <svelte:head>
     <title>Sorigin | {user.username}'s Profile</title>
-    <meta name="title" content="Sorigin">
-    <meta name="description" content="{user.username}'s Profile">
-    <meta name="keywords" content="beat saber, sorigin">
-    <meta name="image" content="{getPFP(user, Size.Small)}">
-    <meta name="language" content="English">
+    <meta name="og:title" content="{user.username}'s Profile">
+    <meta name="og:image" content="{getPFP(user, Size.Small)}">
+    <meta name="og:url" content={SORIGIN_URL}>
+    <meta name="og:site_name" content="Sorigin">
 </svelte:head>
 
 <section class="section">
@@ -114,11 +117,13 @@
             </div>
             <div class="block">
                 {#if isSelf}
-                    <button class="button is-dark is-fullwidth" on:click="{() => {
+                    <button class="button is-dark is-fullwidth" on:click="{async () => {
                         if (editMode) {
-                            save()
+                            await save()
                         }
-                        editMode = !editMode
+                        if (!usernameTaken) {
+                            editMode = !editMode
+                        }
                     }}" class:is-danger={username === ''} disabled={username === ''}>{editMode ? "Save" : "Edit"}</button>
                 {/if}
             </div>
