@@ -2,9 +2,10 @@
     import type AuthedUser from '$lib/types/authedUser'
     
     export async function load({ session }) {
+
         return {
             props: {
-                user: session.user !== undefined ? session.user : null
+                user: session.token !== undefined ? { token: session.token, user: session.user } : null
             }
         }
     }

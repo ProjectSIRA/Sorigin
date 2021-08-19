@@ -29,7 +29,70 @@
     import Steam from '$lib/buttons/Steam.svelte'
     import { GamePlatform } from '$lib/types/user'
     import { getPFP, Size } from '../utils/users'
+    import { authedUser } from '$lib/stores/usersStore'
+    import { goto } from '$app/navigation'
+    
     export let user: User
+
+    $: isSelf = $authedUser !== null && $authedUser.user.id === user.id
+    let bio: string = user.bio ?? ''
+    let username: string = user.username
+    let usernameTaken: boolean = false
+    let editMode: boolean = false
+
+    async function save() {
+        if (bio !== user.bio) {
+
+            const bioUpdateURL = `${browser ? SORIGIN_URL : REFETCH_URL}/api/user/edit/description`
+            
+
+            const res = await fetch(bioUpdateURL, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${$authedUser.token}`
+                },
+                body: JSON.stringify({
+                    NewDescription: bio
+                })
+            })
+
+            if (res.ok) {
+                const body = await res.json()
+                const u = body as User
+
+                bio = u.bio
+                user.bio = bio
+                user = user
+            }
+        }
+
+        if (username.toLowerCase() === $authedUser.user.username.toLowerCase())
+            return
+
+        const usernameListURL = `${browser ? SORIGIN_URL : REFETCH_URL}/api/user`
+        const userRes = await fetch(usernameListURL, {
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            }
+        })
+
+        if (userRes.ok) {
+
+            const userBody = await userRes.json()
+            const users = userBody as string[]
+
+            let lUsername = username.toLowerCase()
+            if (users.find(x => x.toLowerCase() === lUsername) !== undefined) {
+                return
+            }
+        }
+    
+        await goto(`/linker/edit-username/${encodeURIComponent(username)}/${$authedUser.token}`)
+    }
+
 </script>
 
 <svelte:head>
@@ -44,18 +107,50 @@
 <section class="section">
     <div class="columns">
         <div class="column is-one-quarter">
-            <figure class="image is-256x256">
-                <img id="so-curved" src={getPFP(user, Size.Medium)} alt="User Profile" />
-            </figure>
+            <div class="block">
+                <figure class="image is-256x256">
+                    <img id="so-curved" src={getPFP(user, Size.Medium)} alt="User Profile" />
+                </figure>
+            </div>
+            <div class="block">
+                {#if isSelf}
+                    <button class="button is-dark is-fullwidth" on:click="{() => {
+                        if (editMode) {
+                            save()
+                        }
+                        editMode = !editMode
+                    }}" class:is-danger={username === ''} disabled={username === ''}>{editMode ? "Save" : "Edit"}</button>
+                {/if}
+            </div>
         </div>
         <div class="column">
             <div class="content">
-                <h1 class="title">{user.username}</h1>
-                {#if user.bio !== null}
-                    <p>{user.bio}</p>
+                {#if isSelf && editMode}
+                    <div class="block">
+                        <div class="control">
+                            <input class="input" type="text" placeholder={$authedUser.user.username} class:is-danger={username === ''} bind:value={username}>
+                        </div>
+                        <p class="help is-danger">{usernameTaken ? 'This username is taken.' : ''}</p>
+                    </div>
                 {:else}
-                    <p><i>We don't know much about {user.username}... but we bet they're cool!</i></p>
+                    <h1 class="title">{user.username}</h1>
                 {/if}
+
+                {#if isSelf && editMode}
+                    <div class="block">
+                        <div class="control">
+                            <textarea class="textarea" placeholder="Tell us a bit about yourself..." bind:value={bio} />
+                        </div>
+                    </div>
+                {:else}
+                    {#if user.bio !== null}
+                        <p>{user.bio}</p>
+                    {:else}
+                        <p><i>We don't know much about {user.username}... but we bet they're cool!</i></p>
+                    {/if}
+                {/if}
+
+                
             </div>
         </div>
         <div class="column is-one-fifth">
