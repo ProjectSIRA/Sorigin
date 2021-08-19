@@ -12,11 +12,13 @@ export async function handle({ request, resolve }) {
     const response = await resolve(request)
 
     if (request.locals.user === 'delete') {
-        response.headers['set-cookie'] = `user=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-        response.headers['set-cookie'] = `session_end=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-        response.headers['set-cookie'] = `token=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        response.headers['set-cookie'] = [
+            `user=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+            `session_end=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+            `token=logout; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        ]
     }
-    else if (request.locals.user !== undefined && cookies.user === undefined) {
+    else if (request.locals.user !== undefined && cookies.token === undefined) {
         let fourHours = new Date()
         fourHours.setTime(fourHours.getTime() + 4 * 60 * 60 * 1000)
         request.locals.token = request.locals.user.token

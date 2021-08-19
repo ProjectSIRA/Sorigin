@@ -17,7 +17,12 @@
 
 </script>
 
-<button class="button is-primary is-fullwidth" on:click={toggleDiscord}>{buttonText}</button>
+<button class="button is-primary is-fullwidth" on:click={toggleDiscord}>
+    <span class="icon">
+        <ion-icon name="logo-discord"></ion-icon>
+    </span>
+    <span>{buttonText}</span>
+</button>
 
 <style scoped>
     .button.is-primary {

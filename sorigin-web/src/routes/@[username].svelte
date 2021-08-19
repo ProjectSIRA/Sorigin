@@ -27,12 +27,18 @@
     import ScoreSaber from '$lib/buttons/ScoreSaber.svelte'
     import Discord from '$lib/buttons/Discord.svelte'
     import Steam from '$lib/buttons/Steam.svelte'
-    import { GamePlatform } from '$lib/types/user'
+    import { GamePlatform, Role } from '$lib/types/user'
     import { getPFP, Size } from '../utils/users'
     import { authedUser } from '$lib/stores/usersStore'
     import { goto } from '$app/navigation'
     
     export let user: User
+
+    interface RoleInfo {
+        id: string
+        icon: string
+        name: string
+    }
 
     $: isSelf = $authedUser !== null && $authedUser.user.id === user.id
     let bio: string = user.bio ?? ''
@@ -40,9 +46,20 @@
     let usernameTaken: boolean = false
     let editMode: boolean = false
 
+    const roleData: RoleInfo | null = roleInfo()
+
+    function roleInfo() {
+        if ((user.role & Role.Owner) === Role.Owner)
+            return { id: 'owner', icon: 'build', name: 'Owner of Sorigin' } as RoleInfo
+        if ((user.role & Role.Admin) === Role.Admin)
+            return { id: 'admin', icon: 'shield-checkmark', name: 'Sorigin Admin' } as RoleInfo
+        if ((user.role & Role.Verified) === Role.Verified)
+            return { id: 'verified', icon: 'checkmark-circle', name: 'Verified Account' } as RoleInfo
+        return null
+    }
+
     async function save() {
         if (bio !== user.bio) {
-
             const bioUpdateURL = `${browser ? SORIGIN_URL : REFETCH_URL}/api/user/edit/description`
             
             const res = await fetch(bioUpdateURL, {
@@ -97,6 +114,13 @@
         await goto(`/linker/edit-username/${encodeURIComponent(username)}/${$authedUser.token}`)
     }
 
+    async function edit() {
+        if (editMode)
+            await save()
+        if (!usernameTaken)
+            editMode = !editMode
+    }
+
 </script>
 
 <svelte:head>
@@ -117,14 +141,12 @@
             </div>
             <div class="block">
                 {#if isSelf}
-                    <button class="button is-dark is-fullwidth" on:click="{async () => {
-                        if (editMode) {
-                            await save()
-                        }
-                        if (!usernameTaken) {
-                            editMode = !editMode
-                        }
-                    }}" class:is-danger={username === ''} disabled={username === ''}>{editMode ? "Save" : "Edit"}</button>
+                    <button class="button is-dark is-fullwidth" on:click={edit} class:is-danger={username === ''} disabled={username === ''}>
+                    <span class="icon">
+                        <ion-icon name="create-outline"></ion-icon>
+                    </span>
+                    <span>{editMode ? "Save" : "Edit"}</span>
+                </button>
                 {/if}
             </div>
         </div>
@@ -138,7 +160,19 @@
                         <p class="help is-danger">{usernameTaken ? 'This username is taken.' : ''}</p>
                     </div>
                 {:else}
-                    <h1 class="title">{user.username}</h1>
+                    {#if roleData !== null}
+                        <span class="icon-text has-text-info">
+                            <span class="icon is-large" data-tooltip={roleData.name} id={roleData.id}>
+                                <ion-icon name={roleData.icon} size="large"></ion-icon>
+                            </span>
+                            <span>
+                                <h1 class="title">{user.username}</h1>
+                            </span>
+                        </span>
+                    {:else}
+                        <h1 class="title">{user.username}</h1>
+                    {/if}
+                    
                 {/if}
 
                 {#if isSelf && editMode}
@@ -177,5 +211,17 @@
 <style>
     #so-curved {
         border-radius: 10%;
+    }
+
+    #owner {
+        color: #3AFFFF;
+    }
+    
+    #admin {
+        color: #ff3a3a;
+    }
+    
+    #verified {
+        color: #cafffc;
     }
 </style>

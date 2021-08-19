@@ -73,4 +73,14 @@
         background-color: transparent;
         box-shadow: none;
     }
+
+    [data-tooltip] {
+        &:not(a):not(button):not(input) {
+            border-bottom: 0px;
+        }
+    }
+
+    ion-icon {
+        pointer-events: none;
+    }
 </style>

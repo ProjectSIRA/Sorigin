@@ -30,3 +30,6 @@ $shadow: 0 0.5em 1em -0.125em rgba(0, 0, 0, 0.1), 0 0px 0 1px rgba(42, 42, 42, 0
 
 @import "bulma/sass/components/navbar.sass";
 @import "bulma/sass/layout/section.sass";
+
+@import "../../node_modules/@picocss/pico/scss/_variables.scss";
+@import "../../node_modules/@picocss/pico/scss/utilities/tooltip.scss";

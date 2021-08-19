@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@picocss/pico@^1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@picocss/pico/-/pico-1.3.3.tgz#3d112c01743a7746aad1e3398e3f546fbe5e2c97"
+  integrity sha512-fV1e1VqZHYF4LgHu1JCoZmq8qkzo1f18f04+IIe7JvK4Bz4KmkiQXn4lQmxo2iZjYwCzH62OCW3H0g71Mu22/A==
+
 "@rollup/pluginutils@^4.1.1":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-4.1.1.tgz#1d4da86dd4eded15656a57d933fda2b9a08d47ec"

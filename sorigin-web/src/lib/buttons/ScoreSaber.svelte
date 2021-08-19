@@ -12,7 +12,12 @@
 
 </script>
 
-<button class="button is-primary is-fullwidth" on:click={openScoreSaber}>ScoreSaber</button>
+<button class="button is-primary is-fullwidth" on:click={openScoreSaber}>
+    <span class="icon">
+        <ion-icon name="medal"></ion-icon>
+    </span>
+    <span>ScoreSaber</span>
+</button>
 
 <style scoped>
     .button.is-primary {

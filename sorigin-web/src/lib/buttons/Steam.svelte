@@ -11,7 +11,12 @@
 
 </script>
 
-<button class="button is-primary is-fullwidth" on:click={openSteam}>Steam</button>
+<button class="button is-primary is-fullwidth" on:click={openSteam}>
+    <span class="icon">
+        <ion-icon name="logo-steam"></ion-icon>
+    </span>
+    <span>Steam</span>
+</button>
 
 <style scoped>
     .button.is-primary {
