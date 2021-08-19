@@ -12,13 +12,11 @@
 
 </script>
 
-<button id="so-scoresaber-button" on:click={openScoreSaber}>ScoreSaber</button>
+<button class="button is-primary is-fullwidth" on:click={openScoreSaber}>ScoreSaber</button>
 
 <style scoped>
-    #so-scoresaber-button {
-        --primary: #F5D628;
-        --primary-hover: #917e17;
-        --primary-focus: rgba(82, 71, 15, 0.25);
-        --primary-inverse: rgb(15, 15, 15);
+    .button.is-primary {
+        background-color: #F5D628;
+        color: #0f1113;
     }
 </style>

@@ -17,13 +17,11 @@
 
 </script>
 
-<button id="so-discord-button" on:click={toggleDiscord}>{buttonText}</button>
+<button class="button is-primary is-fullwidth" on:click={toggleDiscord}>{buttonText}</button>
 
 <style scoped>
-    #so-discord-button {
-        --primary: #7289DA ;
-        --primary-hover: #4E5D94;
-        --primary-focus: rgba(35, 39, 42, 0.125);
-        --primary-inverse: #23272A;
+    .button.is-primary {
+        background-color: #7289DA;
+        color: #23272A;
     }
 </style>

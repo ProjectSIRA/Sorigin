@@ -1,5 +1,3 @@
-
-
 <svelte:head>
     <meta name="title" content="Sorigin">
     <meta name="description" content="A player-unifying authorization platform for the Beat Saber community.">
@@ -34,32 +32,49 @@
 
 </script>
 
-<nav class="container-fluid">
-    <ul>
-        <li><a href="/" class="contrast">Sorigin</a></li>
-    </ul>
-    <ul>
-        {#if $authedUser !== null}
-            <li><a href="/@{$authedUser.user.username}" class="secondary">{$authedUser.user.username}</a></li>
-            <li><a href="/logout" class="secondary">Log Out</a></li>
-        {:else}
-            <li><a href="/login" class="secondary">Log In</a></li>
-        {/if}
-    </ul>
+<nav class="navbar is-transparent m-4" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" href="/">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item subtitle" href="/">
+                Sorigin
+            </a>
+        </div>
+        <div class="navbar-end">
+            {#if $authedUser !== null}
+                <a class="navbar-item" href="/@{$authedUser.user.username}">
+                    <h3 class="subtitle">{$authedUser.user.username}</h3>
+                </a>
+                <a class="navbar-item" href="/logout">
+                    <h3 class="subtitle">Log Out</h3>
+                </a>
+            {:else}
+                <a class="navbar-item subtitle" href="/login">
+                    Log In
+                </a>
+            {/if}
+        </div>
+    </div>
 </nav>
 
 <body>
-    <main class="container">
-        <slot></slot>  
-    </main>
+    <div class="container">
+        <slot></slot>
+    </div>
 </body>
 
+<style lang="scss" global>
+    html {
+        overflow: auto;
+    }
 
-<style lang="css" global>
-	@media only screen and (prefers-color-scheme: dark) {
-		:root:not([data-theme="light"]) {
-            --background-color: #0e0e0e;
-            --card-background-color: #1b1b1b;
-		}
-	}
+    .navbar {
+        background-color: transparent;
+    }
 </style>

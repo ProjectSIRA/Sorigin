@@ -20,33 +20,22 @@
 
 </script>
 
-<div class="grid">
-    <div></div>
-    <div>
-        <article>
-            <h3>Sign In</h3>
-            <button on:click={handleDiscord}>
-                Sign in with Discord
-            </button>
-        </article>
+<section class="section">
+    <div class="columns">
+        <div class="column is-one-third is-offset-one-third">
+            <article>
+                <h3 class="title">Sign In</h3>
+                <button class="button is-primary" on:click={handleDiscord}>
+                    Sign in with Discord
+                </button>
+            </article>
+        </div>
     </div>
-    <div></div>
-</div>
+</section>
 
 <style lang="css" scoped>
-    :root:not([data-theme="dark"]) {
-        --primary: #7289DA ;
-        --primary-hover: #4E5D94;
-        --primary-focus: rgba(35, 39, 42, 0.125);
-        --primary-inverse: #23272A;
-    }
-
-    @media only screen and (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-            --primary: #7289DA;
-            --primary-hover: #4E5D94;
-            --primary-focus: rgba(35, 39, 42, 0.125);
-            --primary-inverse: #23272A;
-        }
+    .button.is-primary {
+        background-color: #7289DA;
+        color: #23272A;
     }
 </style>
