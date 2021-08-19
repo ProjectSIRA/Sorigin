@@ -24,6 +24,7 @@
     import { authedUser } from '$lib/stores/usersStore'
     import { onMount } from 'svelte'
 
+    let navOpen: boolean = false
     export let user: AuthedUser | null
 
     onMount(() => {
@@ -34,18 +35,16 @@
 
 <nav class="navbar is-transparent m-4" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" href="/">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
+        <a class="navbar-item subtitle" href="/">
+            Sorigin
         </a>
-    </div>
-    <div class="navbar-menu">
-        <div class="navbar-start">
-            <a class="navbar-item subtitle" href="/">
-                Sorigin
-            </a>
+        <div role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" class:is-active="{navOpen}" on:click="{() => navOpen = !navOpen}">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
         </div>
+    </div>
+    <div class="navbar-menu" class:is-active="{navOpen}">
         <div class="navbar-end">
             {#if $authedUser !== null}
                 <a class="navbar-item" href="/@{$authedUser.user.username}">
@@ -76,5 +75,10 @@
 
     .navbar {
         background-color: transparent;
+    }
+
+    .navbar-menu {
+        background-color: transparent;
+        box-shadow: none;
     }
 </style>
