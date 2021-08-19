@@ -49,7 +49,7 @@
                 {#if user.bio !== null}
                     <p>{user.bio}</p>
                 {:else}
-                    <p>We don't know much about {user.username}... but we bet they're cool!</p>
+                    <p><i>We don't know much about {user.username}... but we bet they're cool!</i></p>
                 {/if}
             </div>
         </div>
