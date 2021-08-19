@@ -1,12 +1,3 @@
-<svelte:head>
-    <meta name="title" content="Sorigin">
-    <meta name="description" content="A player-unifying authorization platform for the Beat Saber community.">
-    <meta name="keywords" content="beat saber, sorigin">
-    <meta name="robots" content="noindex, nofollow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
-</svelte:head>
-
 <script lang="ts" context="module">
     import type AuthedUser from '$lib/types/authedUser'
     

@@ -34,6 +34,11 @@
 
 <svelte:head>
     <title>Sorigin | {user.username}'s Profile</title>
+    <meta name="title" content="Sorigin">
+    <meta name="description" content="{user.username}'s Profile">
+    <meta name="keywords" content="beat saber, sorigin">
+    <meta name="image" content="{getPFP(user, Size.Small)}">
+    <meta name="language" content="English">
 </svelte:head>
 
 <section class="section">
