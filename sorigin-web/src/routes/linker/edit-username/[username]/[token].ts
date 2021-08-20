@@ -31,7 +31,7 @@ export async function get({ params, locals }) {
             status: 403
         }
     }
-    locals.uu = user
+    locals.updated_user = user
     return {
         status: 302,
         headers: {

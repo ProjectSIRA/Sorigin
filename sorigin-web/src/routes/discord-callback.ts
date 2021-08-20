@@ -52,8 +52,8 @@ export async function get(req) {
         }
     }
 
-    const authedUser = { token: accessToken, user } as AuthedUser
-    req.locals.user = authedUser
+    req.locals.user = user
+    req.locals.token = accessToken
 
     return {
         status: 302,
