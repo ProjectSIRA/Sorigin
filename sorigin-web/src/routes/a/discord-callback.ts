@@ -1,7 +1,6 @@
 import type User from '$lib/types/user'
-import { REFETCH_URL } from '../utils/env'
+import { REFETCH_URL } from '../../utils/env'
 import fetch from 'node-fetch'
-import type AuthedUser from '$lib/types/authedUser'
 
 const tokenURL = `${REFETCH_URL}/api/auth/token`
 const userURL = `${REFETCH_URL}/api/auth/@me`

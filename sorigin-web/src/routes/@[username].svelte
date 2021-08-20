@@ -111,7 +111,7 @@
             }
         }
     
-        await goto(`/linker/edit-username/${encodeURIComponent(username)}/${$authedUser.token}`)
+        await goto(`/a/edit-username/${encodeURIComponent(username)}/${$authedUser.token}`)
     }
 
     async function edit() {

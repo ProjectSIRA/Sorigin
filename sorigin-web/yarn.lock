@@ -75,6 +75,11 @@
   dependencies:
     "@types/node" "*"
 
+"@ungap/event-target@^0.2.2":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@ungap/event-target/-/event-target-0.2.3.tgz#be682c681126dca2371c4e1a1721f8e8bb400905"
+  integrity sha512-7Bz0qdvxNGV9n0f+xcMKU7wsEfK6PNzo8IdAcOiBgMNyCuU0Mk9dv0Hbd/Kgr+MFFfn4xLHFbuOt820egT5qEA==
+
 ansi-styles@^4.1.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-4.3.0.tgz#edd803628ae71c04c85ae7a0906edad34b648937"
@@ -508,6 +513,13 @@ sourcemap-codec@^1.4.4:
   resolved "https://registry.yarnpkg.com/sourcemap-codec/-/sourcemap-codec-1.4.8.tgz#ea804bd94857402e6992d05a38ef1ae35a9ab4c4"
   integrity sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==
 
+sswr@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/sswr/-/sswr-1.3.1.tgz#a50397e673c71010816c79fe3d6ca4790c0a85e0"
+  integrity sha512-xnXgaXyb5F9sXVvlMV2BVFeTHhAYMhhzZlJuOCW31m1kfF/wFw5epwt6Mh6ZKu8pDdTofNNL0ZPByfmQze/2rw==
+  dependencies:
+    swrev "^1.9.0"
+
 strip-indent@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/strip-indent/-/strip-indent-3.0.0.tgz#c32e1cee940b6b3432c771bc2c54bcce73cd3001"
@@ -556,6 +568,13 @@ svelte@^3.34.0:
   version "3.42.1"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.42.1.tgz#d4b4d9068cce911835f7c6b8ff1d290e1a0b5657"
   integrity sha512-XtExLd2JAU3T7M2g/DkO3UNj/3n1WdTXrfL63OZ5nZq7nAqd9wQw+lR4Pv/wkVbrWbAIPfLDX47UjFdmnY+YtQ==
+
+swrev@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/swrev/-/swrev-1.9.0.tgz#f2ceaf885dca2d3d2ae2bf3c86f5aba12f5b5a89"
+  integrity sha512-sybQb903n1sSnbyO1JqejDanjeb15E1xH9PhzWtnEPtIAsLvN1gLEl2x6gEWBY3MI3o68ktZSWPV0HS7pxkiDQ==
+  dependencies:
+    "@ungap/event-target" "^0.2.2"
 
 tiny-glob@^0.2.9:
   version "0.2.9"

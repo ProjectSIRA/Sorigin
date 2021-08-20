@@ -67,8 +67,8 @@ namespace Sorigin.Controllers
             return Ok(user);
         }
 
-        [HttpPost("edit/description")]
         [Authorize]
+        [HttpPost("edit/description")]
         public async Task<ActionResult<User>> EditDescription([FromBody] EditDescriptionBody body)
         {
             User user = (await _authService.GetUser(User.GetID()))!;
@@ -87,8 +87,8 @@ namespace Sorigin.Controllers
             return Ok(user);
         }
 
-        [HttpPost("edit/username")]
         [Authorize]
+        [HttpPost("edit/username")]
         public async Task<ActionResult<User>> ChangeUsername([FromBody] ChangeUsernameBody body)
         {
             if (string.IsNullOrWhiteSpace(body.Username))

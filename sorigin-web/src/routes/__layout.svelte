@@ -2,7 +2,6 @@
     import type AuthedUser from '$lib/types/authedUser'
     
     export async function load({ session }) {
-
         return {
             props: {
                 user: session.token !== undefined ? { token: session.token, user: session.user } : null
@@ -42,7 +41,7 @@
                 <a class="navbar-item" href="/@{$authedUser.user.username}">
                     <h3 class="subtitle">{$authedUser.user.username}</h3>
                 </a>
-                <a class="navbar-item" href="/logout">
+                <a class="navbar-item" href="/a/logout">
                     <h3 class="subtitle">Log Out</h3>
                 </a>
             {:else}
