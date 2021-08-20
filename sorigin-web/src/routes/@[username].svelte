@@ -25,38 +25,21 @@
 
 <script lang="ts">
     import ScoreSaber from '$lib/buttons/ScoreSaber.svelte'
+    import RoleIcon from '$lib/profiles/RoleIcon.svelte'
     import Discord from '$lib/buttons/Discord.svelte'
     import Steam from '$lib/buttons/Steam.svelte'
-    import { GamePlatform, Role } from '$lib/types/user'
+    import { GamePlatform } from '$lib/types/user'
     import { getPFP, Size } from '$lib/utils/users'
     import { authedUser } from '$lib/stores/usersStore'
     import { goto } from '$app/navigation'
     
     export let user: User
 
-    interface RoleInfo {
-        id: string
-        icon: string
-        name: string
-    }
-
     $: isSelf = $authedUser !== null && $authedUser.user.id === user.id
     let bio: string = user.bio ?? ''
     let username: string = user.username
     let usernameTaken: boolean = false
     let editMode: boolean = false
-
-    const roleData: RoleInfo | null = roleInfo()
-
-    function roleInfo() {
-        if ((user.role & Role.Owner) === Role.Owner)
-            return { id: 'owner', icon: 'build', name: 'Owner of Sorigin' } as RoleInfo
-        if ((user.role & Role.Admin) === Role.Admin)
-            return { id: 'admin', icon: 'shield-checkmark', name: 'Sorigin Admin' } as RoleInfo
-        if ((user.role & Role.Verified) === Role.Verified)
-            return { id: 'verified', icon: 'checkmark-circle', name: 'Verified Account' } as RoleInfo
-        return null
-    }
 
     async function save() {
         if (bio !== user.bio) {
@@ -160,19 +143,7 @@
                         <p class="help is-danger">{usernameTaken ? 'This username is taken.' : ''}</p>
                     </div>
                 {:else}
-                    {#if roleData !== null}
-                        <span class="icon-text has-text-info">
-                            <span class="icon is-large" data-tooltip={roleData.name} id={roleData.id}>
-                                <ion-icon name={roleData.icon} size="large"></ion-icon>
-                            </span>
-                            <span>
-                                <h1 class="title">{user.username}</h1>
-                            </span>
-                        </span>
-                    {:else}
-                        <h1 class="title">{user.username}</h1>
-                    {/if}
-                    
+                    <RoleIcon user={user} />
                 {/if}
 
                 {#if isSelf && editMode}
@@ -211,17 +182,5 @@
 <style>
     #so-curved {
         border-radius: 10%;
-    }
-
-    #owner {
-        color: #3AFFFF;
-    }
-    
-    #admin {
-        color: #ff3a3a;
-    }
-    
-    #verified {
-        color: #cafffc;
     }
 </style>
