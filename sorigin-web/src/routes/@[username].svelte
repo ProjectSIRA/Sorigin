@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
     import type User from '$lib/types/user'
-    import { REFETCH_URL, SORIGIN_URL } from '../utils/env'
+    import { REFETCH_URL, SORIGIN_URL } from '$lib/utils/env'
     import { browser } from '$app/env'
 
     export const ssr = true
@@ -28,7 +28,7 @@
     import Discord from '$lib/buttons/Discord.svelte'
     import Steam from '$lib/buttons/Steam.svelte'
     import { GamePlatform, Role } from '$lib/types/user'
-    import { getPFP, Size } from '../utils/users'
+    import { getPFP, Size } from '$lib/utils/users'
     import { authedUser } from '$lib/stores/usersStore'
     import { goto } from '$app/navigation'
     

@@ -4,7 +4,7 @@
 
 <script lang="ts">
     import { page } from '$app/stores'
-    import { REDIRECT_URL, SORIGIN_URL } from '../../src/utils/env'
+    import { REDIRECT_URL, SORIGIN_URL } from '$lib/utils/env'
 
     function handleDiscord() {
         let redirectURL = $page.query.get('redirect_url')

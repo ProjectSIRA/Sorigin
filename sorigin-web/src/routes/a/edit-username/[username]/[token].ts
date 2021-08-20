@@ -1,4 +1,4 @@
-import { REFETCH_URL } from '../../../../utils/env'
+import { REFETCH_URL } from '$lib/utils/env'
 import type User from '$lib/types/user'
 import fetch from 'node-fetch'
 
