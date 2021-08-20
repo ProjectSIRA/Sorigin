@@ -1,5 +1,5 @@
 import type AuthedUser from '$lib/types/authedUser'
-import { writable } from 'svelte/store'
+import { readable, writable } from 'svelte/store'
 
 export const authedUser = writable(getUser())
 

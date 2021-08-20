@@ -1,67 +1,37 @@
 <script lang="ts" context="module">
     import type User from '$lib/types/user'
-    import { REFETCH_URL, SORIGIN_URL } from '$lib/utils/env'
-    import { browser } from '$app/env'
+    import { SORIGIN_URL } from '$lib/utils/env'
+    import { userByUsername, updateDescription, getUsernames } from '$lib/sorigin'
 
-    export const ssr = true
-
-    export async function load({ page, fetch }) {
-        const backend = browser ? SORIGIN_URL : REFETCH_URL
-        const url = `${backend}/api/user/by-username/${page.params.username}`
-        const res = await fetch(url)
-
-        if (res.ok) {
-            const user: User = await res.json()
-            return { props: { user } }
+    export async function load({ page }) {
+        const userResponse = await userByUsername(page.params.username)
+        if (userResponse.user !== null) {
+            return { props: { user: userResponse.user } }
         }
-
-        return {
-            status: res.status,
-            error: new Error(`Could not load ${url}`)
-        }
+        return { error: new Error(userResponse.error) }
     }
-
 </script>
 
 <script lang="ts">
-    import ScoreSaber from '$lib/buttons/ScoreSaber.svelte'
+    import SocialButtonGroup from '$lib/buttons/SocialButtonGroup.svelte'
     import RoleIcon from '$lib/profiles/RoleIcon.svelte'
-    import Discord from '$lib/buttons/Discord.svelte'
-    import Steam from '$lib/buttons/Steam.svelte'
-    import { GamePlatform } from '$lib/types/user'
-    import { getPFP, Size } from '$lib/utils/users'
     import { authedUser } from '$lib/stores/usersStore'
+    import { getPFP, Size } from '$lib/utils/users'
     import { goto } from '$app/navigation'
     
     export let user: User
 
     $: isSelf = $authedUser !== null && $authedUser.user.id === user.id
-    let bio: string = user.bio ?? ''
     let username: string = user.username
     let usernameTaken: boolean = false
+    let bio: string = user.bio ?? ''
     let editMode: boolean = false
 
     async function save() {
         if (bio !== user.bio) {
-            const bioUpdateURL = `${browser ? SORIGIN_URL : REFETCH_URL}/api/user/edit/description`
-            
-            const res = await fetch(bioUpdateURL, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${$authedUser.token}`
-                },
-                body: JSON.stringify({
-                    NewDescription: bio
-                })
-            })
-
-            if (res.ok) {
-                const body = await res.json()
-                const u = body as User
-
-                bio = u.bio
+            const bioUser = await updateDescription(bio, $authedUser.token)
+            if (bioUser.user) {
+                bio = bioUser.user.bio
                 user.bio = bio
                 user = user
             }
@@ -70,28 +40,13 @@
         if (username.toLowerCase() === $authedUser.user.username.toLowerCase())
             return
 
-        const usernameListURL = `${browser ? SORIGIN_URL : REFETCH_URL}/api/user`
-        const userRes = await fetch(usernameListURL, {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            }
-        })
-
-        if (userRes.ok) {
-
-            const userBody = await userRes.json()
-            const users = userBody as string[]
-
-            let lUsername = username.toLowerCase()
-            if (users.find(x => x.toLowerCase() === lUsername) !== undefined) {
-                usernameTaken = true
-                await new Promise(function(resolve) {
-                    setTimeout(resolve, 3000)
-                });
-                usernameTaken = false
-                return
-            }
+        const users = await getUsernames()
+        let lUsername = username.toLowerCase()
+        if (users.find(x => x.toLowerCase() === lUsername) !== undefined) {
+            usernameTaken = true
+            await new Promise(function(resolve) { setTimeout(resolve, 3000) });
+            usernameTaken = false
+            return
         }
     
         await goto(`/a/edit-username/${encodeURIComponent(username)}/${$authedUser.token}`)
@@ -108,10 +63,10 @@
 
 <svelte:head>
     <title>Sorigin | {user.username}'s Profile</title>
-    <meta name="og:title" content="{user.username}'s Profile">
     <meta name="og:image" content="{getPFP(user, Size.Small)}">
-    <meta name="og:url" content={SORIGIN_URL}>
+    <meta name="og:title" content="{user.username}'s Profile">
     <meta name="og:site_name" content="Sorigin">
+    <meta name="og:url" content={SORIGIN_URL}>
 </svelte:head>
 
 <section class="section">
@@ -159,22 +114,10 @@
                         <p><i>We don't know much about {user.username}... but we bet they're cool!</i></p>
                     {/if}
                 {/if}
-
-                
             </div>
         </div>
         <div class="column is-one-fifth">
-            <div class="buttons are-large">
-                {#if user.steam !== null}
-                    <Steam user={user}></Steam>
-                {/if}
-                {#if user.discord !== null}
-                    <Discord user={user}></Discord>
-                {/if}
-                {#if user.gamePlatform === GamePlatform.Steam}
-                    <ScoreSaber user={user}></ScoreSaber>
-                {/if}
-            </div>
+            <SocialButtonGroup user={user} />
         </div>
     </div>
 </section>
