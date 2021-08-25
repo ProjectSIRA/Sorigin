@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Sorigin.Models;
 using System;
 using System.Security.Claims;
 using System.Text;
@@ -69,6 +70,18 @@ namespace Sorigin
                     }
                 };
             });
+        }
+
+        // We use this to save some alloc time. We know they're predefined so we don't need to use the heavy enum ToString()
+        public static string ToStringFast(this Platform platform, bool lowerCase = false)
+        {
+            string value = platform switch
+            {
+                Platform.Discord => nameof(Platform.Discord),
+                Platform.Steam => nameof(Platform.Steam),
+                _ => "Unknown",
+            };
+            return lowerCase ? value.ToLower() : value;
         }
     }
 }

@@ -45,6 +45,7 @@ namespace Sorigin
             services.AddSingleton<SteamService>();
             services.AddSingleton<DiscordService>();
             services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
+            services.AddSingleton<IUserStateCache, UserStateCache>();
 
             services.AddDbContext<SoriginContext>(options =>
             {
