@@ -27,8 +27,6 @@ namespace Sorigin.Controllers
         private readonly SteamService _steamService;
         private readonly DiscordService _discordService;
         private readonly DiscordSettings _discordSettings;
-
-        private static readonly Dictionary<Guid, string> _discordStateCache = new();
     
         public AuthController(ILogger<AuthController> logger, IAuthService authService, SoriginContext soriginContext, IUserStateCache userStateCache,
                                 SteamService steamService, DiscordService discordService, DiscordSettings discordSettings)
@@ -53,17 +51,16 @@ namespace Sorigin.Controllers
         [HttpGet("discord/auth")]
         public IActionResult DiscordAuthenticate([FromQuery] string redirect_url)
         {
-            Guid requestID = Guid.NewGuid();
-            _discordStateCache.Add(requestID, redirect_url);
+            Guid requestID = _userStateCache.Add(redirect_url);
             return Redirect($"{_discordSettings.URL}/oauth2/authorize?response_type=code&client_id={_discordSettings.ID}&scope=identify&redirect_uri={_discordSettings.RedirectURL}&state={requestID}");
         }
 
         [HttpGet("discord/callback")]
         public IActionResult DiscordCallback([FromQuery] Guid state, [FromQuery] string code)
         {
-            if (_discordStateCache.TryGetValue(state, out string? redirect_url))
+            string? redirect_url = _userStateCache.Pull(state);
+            if (redirect_url is not null)
             {
-                _discordStateCache.Remove(state);
                 return Redirect($"{redirect_url}?grant={code}");
             }
             return Unauthorized(Error.Create("Could not lock onto authorization flow state."));
