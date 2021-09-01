@@ -2,20 +2,16 @@ import type User from '$lib/types/user'
 import { REFETCH_URL } from '$lib/utils/env'
 import fetch from 'node-fetch'
 
-const tokenURL = `${REFETCH_URL}/api/auth/token`
+const tokenURL = `${REFETCH_URL}/api/auth/login`
 const userURL = `${REFETCH_URL}/api/auth/@me`
 
 async function getAccessToken(grant: string): Promise<string | null> {
-    const res = await fetch(tokenURL, {
+    const res = await fetch(`${tokenURL}?grant=${grant}&platform=discord`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json'
-        },
-        body: JSON.stringify({
-            platform: 0,
-            token: grant
-        })
+        }
     })
     if (!res.ok)
         return null
@@ -39,10 +35,11 @@ async function getUser(accessToken: string): Promise<User | null> {
 export async function get(req) {
     const code = req.query.get('grant')
     const accessToken = await getAccessToken(code)
-    if (accessToken === null)
+    if (accessToken === null) {
         return {
             status: 403
         }
+    }
 
     const user = await getUser(accessToken)
     if (user === null) {
