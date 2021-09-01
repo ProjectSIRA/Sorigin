@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sorigin.Models.Platforms;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Sorigin.Models
 {

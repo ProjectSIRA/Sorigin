@@ -51,7 +51,15 @@ namespace Sorigin.Controllers
             User? user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.ID == id);
             if (user is null)
             {
-                return NotFound();
+                while (true)
+                {
+                    Transfer? transfer = await _soriginContext.Transfers.FirstOrDefaultAsync(t => t.TransferID == id);
+                    if (transfer is null)
+                        break;
+                }
+                user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.ID == id);
+                if (user is null)
+                    return NotFound();
             }
             return Ok(user);
         }

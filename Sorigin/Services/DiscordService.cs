@@ -34,7 +34,7 @@ namespace Sorigin.Services
                 { "code", code },
                 { "redirect_uri", _discordSettings.RedirectURL }
             };
-            FormUrlEncodedContent content = new FormUrlEncodedContent(parameters!);
+            FormUrlEncodedContent content = new(parameters!);
             HttpResponseMessage response = await _client.PostAsync(_discordSettings.URL + "/oauth2/token", content);
             if (response.IsSuccessStatusCode)
             {
