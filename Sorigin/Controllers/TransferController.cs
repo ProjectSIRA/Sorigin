@@ -6,6 +6,9 @@ using Sorigin.Authorization;
 using Sorigin.Models;
 using Sorigin.Models.Platforms;
 using Sorigin.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sorigin.Controllers
@@ -83,14 +86,32 @@ namespace Sorigin.Controllers
                 user.Steam = null;
             }
 
+            if (authedUser.Transfers is null)
+                authedUser.Transfers = new List<Guid>();
+            authedUser.Transfers.Add(user.ID);
+
+            if (user.Transfers is not null)
+                foreach (var id in user.Transfers)
+                    authedUser.Transfers.Add(id);
+
+            _soriginContext.Users.Remove(user);
             _soriginContext.Transfers.Add(new Transfer
             {
                 ID = authedUser.ID,
                 TransferID = user.ID
             });
-
             await _soriginContext.SaveChangesAsync();
+
             return Ok(authedUser);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<Guid>>> GetOldAccounts([FromQuery] Guid id)
+        {
+            User? user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Transfers != null && u.Transfers.Contains(id));
+            if (user is null)
+                return NotFound();
+            return Ok(user.Transfers);
         }
     }
 }

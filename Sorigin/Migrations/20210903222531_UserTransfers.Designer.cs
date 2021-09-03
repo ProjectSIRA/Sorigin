@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sorigin;
@@ -10,9 +11,10 @@ using Sorigin;
 namespace Sorigin.Migrations
 {
     [DbContext(typeof(SoriginContext))]
-    partial class SoriginContextModelSnapshot : ModelSnapshot
+    [Migration("20210903222531_UserTransfers")]
+    partial class UserTransfers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
