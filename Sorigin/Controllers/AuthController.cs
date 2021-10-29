@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,9 +9,7 @@ using Sorigin.Models.Platforms;
 using Sorigin.Services;
 using Sorigin.Settings;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Sorigin.Controllers
@@ -21,18 +20,21 @@ namespace Sorigin.Controllers
     {
         private readonly ILogger _logger;
         private readonly IAuthService _authService;
+        private readonly ITokenService _tokenService;
         private readonly SoriginContext _soriginContext;
         private readonly IUserStateCache _userStateCache;
 
         private readonly SteamService _steamService;
         private readonly DiscordService _discordService;
         private readonly DiscordSettings _discordSettings;
-    
-        public AuthController(ILogger<AuthController> logger, IAuthService authService, SoriginContext soriginContext, IUserStateCache userStateCache,
+        private static readonly Error _invalidRefreshTokenError = new("Either the token has already expired, doesn't exist, or already has been revoked.");
+
+        public AuthController(ILogger<AuthController> logger, IAuthService authService, ITokenService tokenService, SoriginContext soriginContext, IUserStateCache userStateCache,
                                 SteamService steamService, DiscordService discordService, DiscordSettings discordSettings)
         {
             _logger = logger;
             _authService = authService;
+            _tokenService = tokenService;
             _soriginContext = soriginContext;
             _userStateCache = userStateCache;
 
@@ -67,7 +69,7 @@ namespace Sorigin.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponse>> Login([FromQuery] string grant, [FromQuery] string platform)
+        public async Task<ActionResult<Token>> Login([FromQuery] string grant, [FromQuery] string platform)
         {
             var badGrant = BadRequest(Error.Create("Could not authenticate from the provided grant."));
 
@@ -120,8 +122,8 @@ namespace Sorigin.Controllers
                 return badGrant;
 
             _logger.LogInformation("Logging in {Useranme} ({ID}) from {Platform}.", user.Username, user.ID, platform);
-            string userToken = _authService.Sign(user.ID, 4, user.Role);
-            return Ok(new TokenResponse { Token = userToken });
+            TokenSignContract userToken = await _tokenService.Sign(user.ID, user.Role.ToString().Replace(" ", string.Empty).Split(','));
+            return Ok(new Token(userToken.jwt, userToken.refreshToken));
         }
 
         /// <summary>
@@ -152,10 +154,45 @@ namespace Sorigin.Controllers
             return activeUser;
         }
 
-        public class TokenResponse
+        [HttpGet("refresh")]
+        public async Task<ActionResult<Token>> Refresh([FromQuery] string refreshToken)
         {
-            [JsonPropertyName("token")]
-            public string Token { get; set; } = null!;
+            TokenSignContract? contract = await _tokenService.Refresh(refreshToken);
+            if (contract is null)
+                return NotFound(_invalidRefreshTokenError);
+
+            return Ok(new Token(contract.Value.jwt, contract.Value.refreshToken));
+        }
+
+        /// <summary>
+        /// Revoking refresh tokens are completely unauthorized because on purpose.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token to revoke.</param>
+        /// <returns></returns>
+        [HttpDelete("revoke")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult> RevokeRefreshToken([FromQuery] string refreshToken)
+        {
+            bool result = await _tokenService.Revoke(refreshToken);
+            if (!result)
+                return NotFound(_invalidRefreshTokenError);
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpDelete("revoke-all")]
+        public async Task<ActionResult> RevokeAllRefreshTokens()
+        {
+            User? user = await _authService.GetUser(User.GetID().GetValueOrDefault());
+            if (user is null)
+                return NotFound();
+
+            foreach (var token in user.Tokens)
+                await _tokenService.Revoke(token.Value);
+
+            return NoContent();
         }
     }
 }

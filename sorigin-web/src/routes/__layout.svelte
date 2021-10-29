@@ -4,7 +4,7 @@
     export async function load({ session }) {
         return {
             props: {
-                user: session.token !== undefined ? { token: session.token, user: session.user } : null
+                user: session.token !== undefined ? { refresh: session.refresh, token: session.token, user: session.user } : null
             }
         }
     }
@@ -13,6 +13,7 @@
 
 <script lang="ts">
     import { authedUser } from '$lib/stores/usersStore'
+    import { goto } from '$app/navigation'
     import { onMount } from 'svelte'
 
     let navOpen: boolean = false
@@ -21,6 +22,10 @@
     onMount(() => {
         authedUser.set(user)
     })
+
+    function logout() {
+        goto('/a/logout?refreshToken' + user.token)
+    }
 
 </script>
 
@@ -41,9 +46,9 @@
                 <a class="navbar-item" href="/@{$authedUser.user.username}">
                     <h3 class="subtitle">{$authedUser.user.username}</h3>
                 </a>
-                <a class="navbar-item" href="/a/logout">
+                <div class="navbar-item" on:click={logout}>
                     <h3 class="subtitle">Log Out</h3>
-                </a>
+                </div>
             {:else}
                 <a class="navbar-item subtitle" href="/login">
                     Log In

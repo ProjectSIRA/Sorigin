@@ -9,10 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NodaTime;
 using Sorigin.Authorization;
 using Sorigin.Services;
 using Sorigin.Settings;
+using Sorigin.Workers;
 using System;
+using System.Security.Cryptography;
 
 namespace Sorigin
 {
@@ -29,27 +32,33 @@ namespace Sorigin
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHostedService<DatabaseCleaner>();
             services.Configure<JWTSettings>(Configuration.GetSection(nameof(JWTSettings)));
             services.Configure<SteamSettings>(Configuration.GetSection(nameof(SteamSettings)));
             services.Configure<DiscordSettings>(Configuration.GetSection(nameof(DiscordSettings)));
+            services.Configure<SoriginSettings>(Configuration.GetSection(nameof(SoriginSettings)));
 
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<JWTSettings>>().Value);
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<SteamSettings>>().Value);
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<DiscordSettings>>().Value);
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<SoriginSettings>>().Value);
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
 
             services.AddHttpClient();
             
             services.AddScoped<IAuthService, SoriginAuthService>();
+            services.AddScoped<ITokenService, SoriginTokenService>();
 
             services.AddSingleton<SteamService>();
             services.AddSingleton<DiscordService>();
-            services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
+            services.AddSingleton<RNGCryptoServiceProvider>();
+            services.AddSingleton<IClock>(SystemClock.Instance);
             services.AddSingleton<IUserStateCache, UserStateCache>();
+            services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
 
             services.AddDbContext<SoriginContext>(options =>
             {
-                options.UseNpgsql(Configuration.GetConnectionString("Default"));
+                options.UseNpgsql(Configuration.GetConnectionString("Default"), options => options.UseNodaTime());
                 options.UseSnakeCaseNamingConvention();
             });
 

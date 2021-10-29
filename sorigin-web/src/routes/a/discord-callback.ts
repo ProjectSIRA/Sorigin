@@ -1,3 +1,4 @@
+import type TokenSet from '$lib/types/tokenSet'
 import type User from '$lib/types/user'
 import { REFETCH_URL } from '$lib/utils/env'
 import fetch from 'node-fetch'
@@ -5,7 +6,7 @@ import fetch from 'node-fetch'
 const tokenURL = `${REFETCH_URL}/api/auth/login`
 const userURL = `${REFETCH_URL}/api/auth/@me`
 
-async function getAccessToken(grant: string): Promise<string | null> {
+async function getTokens(grant: string): Promise<TokenSet | null> {
     const res = await fetch(`${tokenURL}?grant=${grant}&platform=discord`, {
         method: 'POST',
         headers: {
@@ -16,7 +17,7 @@ async function getAccessToken(grant: string): Promise<string | null> {
     if (!res.ok)
         return null
     const body = await res.json()
-    return body.token as string
+    return body as TokenSet
 }
 
 async function getUser(accessToken: string): Promise<User | null> {
@@ -32,16 +33,16 @@ async function getUser(accessToken: string): Promise<User | null> {
     return body as User
 }
 
-export async function get(req) {
+export async function get(req: any) {
     const code = req.query.get('grant')
-    const accessToken = await getAccessToken(code)
-    if (accessToken === null) {
+    const tokens = await getTokens(code)
+    if (tokens === null) {
         return {
             status: 403
         }
     }
 
-    const user = await getUser(accessToken)
+    const user = await getUser(tokens.token)
     if (user === null) {
         return {
             status: 403
@@ -49,7 +50,8 @@ export async function get(req) {
     }
 
     req.locals.user = user
-    req.locals.token = accessToken
+    req.locals.token = tokens.token
+    req.locals.refresh = tokens.refreshToken
 
     return {
         status: 302,

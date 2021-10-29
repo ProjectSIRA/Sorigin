@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Sorigin.Models
 {
+    [Index(nameof(ID))]
     [Index(nameof(Username))]
     public class User
     {
@@ -21,5 +22,10 @@ namespace Sorigin.Models
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<Guid>? Transfers { get; set; }
+
+        // <---- Other ---->
+
+        [JsonIgnore]
+        public List<RefreshToken> Tokens { get; set; } = null!;
     }
 }
