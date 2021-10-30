@@ -85,7 +85,7 @@ namespace Sorigin
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SoriginContext soriginContext, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SoriginContext soriginContext, ILogger<Startup> logger, JWTSettings jwtSettings)
         {
             logger.LogInformation("Ensuring that the database is created...");
             try
@@ -112,6 +112,7 @@ namespace Sorigin
             {
                 endpoints.MapControllers();
                 endpoints.MapFallback(async context => await context.Response.WriteAsync("Not Found"));
+                endpoints.Map("/api/refresh", async context => await context.Response.WriteAsJsonAsync(new { refreshTokenLifetimeInHours = jwtSettings.RefreshTokenLifetimeInHours }));
                 endpoints.Map("/api", async context => await context.Response.WriteAsync("Sorigin API OK"));
             });
         }

@@ -1,21 +1,21 @@
-import { REFETCH_URL } from '$lib/utils/env'
+import type UserSession from '$lib/models/UserSession';
+import type { Request } from '@sveltejs/kit';
+import axios from 'axios';
+import { soriginURL } from '$lib/sorigin';
 
-const revokeTokenURL = `${REFETCH_URL}/api/auth/refresh`
-
-export async function get({ query, locals }) {
-    
-    const refreshToken = query.get('refreshToken')
-    if (refreshToken !== null && refreshToken !== undefined) {
-        await fetch(`${revokeTokenURL}?refreshToken=${query.get('refreshToken')}`, {
-            method: 'POST'
-        })
+export async function del({ locals }: Request) {
+    if (locals.session.data?.tokens) {
+        const session: UserSession = locals.session.data;
+        try {
+            await axios.delete(soriginURL() + '/api/auth/refresh' + session.tokens.refreshToken);
+        } catch {}
     }
 
-    locals.logout = { }
+    locals.session.destroy();
+
     return {
-        status: 302,
-        headers: {
-            location: '/'
+        body: {
+            ok: true
         }
-    }
+    };
 }

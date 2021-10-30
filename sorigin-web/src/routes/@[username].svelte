@@ -1,72 +1,90 @@
 <script lang="ts" context="module">
-    import type User from '$lib/types/user'
-    import { SORIGIN_URL } from '$lib/utils/env'
-    import { userByUsername, updateDescription, getUsernames } from '$lib/sorigin'
+    import type User from '$lib/types/user';
+    import { SORIGIN_URL } from '$lib/utils/env';
+    import { userByUsername, updateDescription, getUsernames } from '$lib/sorigin';
 
     export async function load({ page }) {
-        const userResponse = await userByUsername(page.params.username)
+        const userResponse = await userByUsername(page.params.username);
         if (userResponse.user !== null) {
-            return { props: { user: userResponse.user } }
+            return { props: { user: userResponse.user } };
         }
-        return { error: new Error(userResponse.error) }
+        return {
+            error: new Error(userResponse.error ?? 'Unknown error occured while loading the user.')
+        };
     }
 </script>
 
 <script lang="ts">
-    import SocialButtonGroup from '$lib/buttons/SocialButtonGroup.svelte'
-    import RoleIcon from '$lib/profiles/RoleIcon.svelte'
-    import { authedUser } from '$lib/stores/usersStore'
-    import { getPFP, Size } from '$lib/utils/users'
-    import { goto } from '$app/navigation'
-    
-    export let user: User
+    import SocialButtonGroup from '$lib/buttons/SocialButtonGroup.svelte';
+    import { sessionStore } from '$lib/stores/sessionStore';
+    import RoleIcon from '$lib/profiles/RoleIcon.svelte';
+    import { getPFP, Size } from '$lib/utils/users';
+    import { postAuthed } from '$lib/sorFetcher';
+    import axios from 'axios';
 
-    $: isSelf = $authedUser !== null && $authedUser.user.id === user.id
-    let username: string = user.username
-    let usernameTaken: boolean = false
-    let bio: string = user.bio ?? ''
-    let editMode: boolean = false
+    export let user: User;
+
+    $: isSelf = $sessionStore !== null && $sessionStore.user.id === user.id;
+    let username: string = user.username;
+    let usernameTaken: boolean = false;
+    let bio: string = user.bio ?? '';
+    let editMode: boolean = false;
 
     async function save() {
+        if ($sessionStore === null) return;
+
         if (bio !== user.bio) {
-            const bioUser = await updateDescription(bio, $authedUser.token)
+            const bioUser = await updateDescription(bio);
             if (bioUser.user) {
-                bio = bioUser.user.bio
-                user.bio = bio
-                user = user
+                bio = bioUser.user.bio ?? '';
+                user.bio = bio;
+                user = user;
             }
         }
 
-        if (username.toLowerCase() === $authedUser.user.username.toLowerCase())
-            return
+        if (username.toLowerCase() === $sessionStore.user.username.toLowerCase()) return;
 
-        const users = await getUsernames()
-        let lUsername = username.toLowerCase()
-        if (users.find(x => x.toLowerCase() === lUsername) !== undefined) {
-            usernameTaken = true
-            await new Promise(function(resolve) { setTimeout(resolve, 3000) });
-            usernameTaken = false
-            return
+        const users = await getUsernames();
+        let lUsername = username.toLowerCase();
+        if (users.find((x) => x.toLowerCase() === lUsername) !== undefined) {
+            usernameTaken = true;
+            await new Promise(function (resolve) {
+                setTimeout(resolve, 3000);
+            });
+            usernameTaken = false;
+            return;
         }
-    
-        await goto(`/a/edit-username/${encodeURIComponent(username)}/${$authedUser.token}`)
+
+        const userResponse = await postAuthed<User>('/user/edit/username', $sessionStore.tokens, {
+            username
+        });
+        if (userResponse.data) {
+            const sStore = $sessionStore;
+            sStore.user.username = userResponse.data.username;
+            sessionStore.set(sStore);
+
+            user.username = userResponse.data.username;
+            user = user;
+
+            await axios.get(`/a/edit/username`);
+            if (window) {
+                window.location.href = '/@' + userResponse.data.username;
+            }
+        }
     }
 
     async function edit() {
-        if (editMode)
-            await save()
-        if (!usernameTaken)
-            editMode = !editMode
+        if (editMode) await save();
+        if (!usernameTaken) editMode = !editMode;
     }
-
 </script>
 
 <svelte:head>
     <title>Sorigin | {user.username}'s Profile</title>
-    <meta name="og:image" content="{getPFP(user, Size.Small)}">
-    <meta name="og:title" content="{user.username}'s Profile">
-    <meta name="og:site_name" content="Sorigin">
-    <meta name="og:url" content={SORIGIN_URL}>
+    <meta name="og:image" content={getPFP(user, Size.Small)} />
+    <meta name="og:title" content="{user.username}'s Profile" />
+    <meta name="og:site_name" content="Sorigin" />
+    <meta name="og:url" content={SORIGIN_URL} />
 </svelte:head>
 
 <section class="section">
@@ -79,45 +97,62 @@
             </div>
             <div class="block">
                 {#if isSelf}
-                    <button class="button is-dark is-fullwidth" on:click={edit} class:is-danger={username === ''} disabled={username === ''}>
-                    <span class="icon">
-                        <ion-icon name="create-outline"></ion-icon>
-                    </span>
-                    <span>{editMode ? "Save" : "Edit"}</span>
-                </button>
+                    <button
+                        class="button is-dark is-fullwidth"
+                        on:click={edit}
+                        class:is-danger={username === ''}
+                        disabled={username === ''}
+                    >
+                        <span class="icon">
+                            <ion-icon name="create-outline" />
+                        </span>
+                        <span>{editMode ? 'Save' : 'Edit'}</span>
+                    </button>
                 {/if}
             </div>
         </div>
         <div class="column">
             <div class="content">
-                {#if isSelf && editMode}
+                {#if isSelf && editMode && $sessionStore}
                     <div class="block">
                         <div class="control">
-                            <input class="input" type="text" placeholder={$authedUser.user.username} class:is-danger={username === ''} bind:value={username}>
+                            <input
+                                class="input"
+                                type="text"
+                                placeholder={$sessionStore.user.username}
+                                class:is-danger={username === ''}
+                                bind:value={username}
+                            />
                         </div>
-                        <p class="help is-danger">{usernameTaken ? 'This username is taken.' : ''}</p>
+                        <p class="help is-danger">
+                            {usernameTaken ? 'This username is taken.' : ''}
+                        </p>
                     </div>
                 {:else}
-                    <RoleIcon user={user} />
+                    <RoleIcon {user} />
                 {/if}
 
                 {#if isSelf && editMode}
                     <div class="block">
                         <div class="control">
-                            <textarea class="textarea" placeholder="Tell us a bit about yourself..." bind:value={bio} />
+                            <textarea
+                                class="textarea"
+                                placeholder="Tell us a bit about yourself..."
+                                bind:value={bio}
+                            />
                         </div>
                     </div>
+                {:else if user.bio !== null}
+                    <p>{user.bio}</p>
                 {:else}
-                    {#if user.bio !== null}
-                        <p>{user.bio}</p>
-                    {:else}
-                        <p><i>We don't know much about {user.username}... but we bet they're cool!</i></p>
-                    {/if}
+                    <p>
+                        <i>We don't know much about {user.username}... but we bet they're cool!</i>
+                    </p>
                 {/if}
             </div>
         </div>
         <div class="column is-one-fifth">
-            <SocialButtonGroup user={user} />
+            <SocialButtonGroup {user} />
         </div>
     </div>
 </section>

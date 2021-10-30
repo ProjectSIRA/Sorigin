@@ -1,5 +1,5 @@
-import type DiscordUser from './discordUser';
-import type SteamUser from './steamUser';
+import type DiscordUser from './DiscordUser';
+import type SteamUser from './SteamUser';
 
 export enum GamePlatform {
     None,

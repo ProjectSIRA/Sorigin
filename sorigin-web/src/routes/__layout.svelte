@@ -1,58 +1,58 @@
-<script lang="ts" context="module">
-    import type AuthedUser from '$lib/types/authedUser'
-    
-    export async function load({ session }) {
-        return {
-            props: {
-                user: session.token !== undefined ? { refresh: session.refresh, token: session.token, user: session.user } : null
-            }
-        }
-    }
-
-</script>
-
 <script lang="ts">
-    import { authedUser } from '$lib/stores/usersStore'
-    import { goto } from '$app/navigation'
-    import { onMount } from 'svelte'
+    import { sessionStore } from '$lib/stores/sessionStore';
+    import { page, session } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
+    import axios from 'axios';
 
-    let navOpen: boolean = false
-    export let user: AuthedUser | null
+    let navOpen: boolean = false;
 
     onMount(() => {
-        authedUser.set(user)
-    })
+        const callback = $page.query.get('callback');
 
-    function logout() {
-        goto('/a/logout?refreshToken' + user.token)
+        if (callback) {
+            if (window) {
+                window.location.href = '/';
+            }
+        } else {
+            sessionStore.set($session.tokens ? $session : null);
+        }
+    });
+
+    async function logOut() {
+        sessionStore.set(null);
+        await axios.delete('/session');
     }
-
 </script>
 
 <nav class="navbar is-transparent m-4" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-        <a class="navbar-item subtitle" href="/">
-            Sorigin
-        </a>
-        <div role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" class:is-active="{navOpen}" on:click="{() => navOpen = !navOpen}">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
+        <a class="navbar-item subtitle" href="/"> Sorigin </a>
+        <div
+            role="button"
+            class="navbar-burger"
+            aria-label="menu"
+            aria-expanded="false"
+            class:is-active={navOpen}
+            on:click={() => (navOpen = !navOpen)}
+        >
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
         </div>
     </div>
-    <div class="navbar-menu" class:is-active="{navOpen}">
+    <div class="navbar-menu" class:is-active={navOpen}>
         <div class="navbar-end">
-            {#if $authedUser !== null}
-                <a class="navbar-item" href="/@{$authedUser.user.username}">
-                    <h3 class="subtitle">{$authedUser.user.username}</h3>
+            {#if $sessionStore !== null}
+                <a class="navbar-item" href="/@{$sessionStore.user.username}">
+                    <h3 class="subtitle">{$sessionStore.user.username}</h3>
                 </a>
-                <div class="navbar-item" on:click={logout}>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <a class="navbar-item" on:click={logOut}>
                     <h3 class="subtitle">Log Out</h3>
-                </div>
-            {:else}
-                <a class="navbar-item subtitle" href="/login">
-                    Log In
                 </a>
+            {:else}
+                <a class="navbar-item subtitle" href="/login"> Log In </a>
             {/if}
         </div>
     </div>
@@ -60,7 +60,7 @@
 
 <body>
     <div class="container">
-        <slot></slot>
+        <slot />
     </div>
 </body>
 

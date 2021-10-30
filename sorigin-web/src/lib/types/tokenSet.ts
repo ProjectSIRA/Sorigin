@@ -1,4 +1,4 @@
 export default interface TokenSet {
-    token: string,
-    refreshToken: string
+    token: string;
+    refreshToken: string;
 }
