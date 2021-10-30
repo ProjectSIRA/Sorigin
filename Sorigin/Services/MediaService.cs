@@ -33,7 +33,7 @@ namespace Sorigin.Services
         public async Task<Media> Upload(string fileName, Stream stream, string contract)
         {
             Guid mediaID = Guid.NewGuid();
-            FileData fileData = await _fileStore.SaveFile(nameof(Media), mediaID, fileName, stream, Affirm);
+            FileData fileData = await _fileStore.SaveFile(nameof(Media).ToLower(), mediaID, fileName, stream, Affirm);
 
             if (fileData.Path is null)
                 return await _soriginContext.Media.FirstAsync(m => m.FileHash == fileData.Hash);
