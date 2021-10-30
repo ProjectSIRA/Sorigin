@@ -99,6 +99,7 @@ namespace Sorigin
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SoriginContext soriginContext, ILogger<Startup> logger, JWTSettings jwtSettings)
         {
+            env.WebRootPath = "wwwroot";
             logger.LogInformation("Ensuring that the database is created...");
             try
             {
