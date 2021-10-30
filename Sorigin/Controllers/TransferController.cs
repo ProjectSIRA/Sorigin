@@ -55,7 +55,9 @@ namespace Sorigin.Controllers
                 if (discordUserFromAccessToken is null)
                     return badGrant;
 
-                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUserFromAccessToken.Id);
+                user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUserFromAccessToken.Id);
+                if (user is null)
+                    user = new User { ID = default, Discord = discordUserFromAccessToken };
             }
             else if (platform == Platform.Steam.ToStringFast(true))
             {
@@ -64,7 +66,9 @@ namespace Sorigin.Controllers
                 if (steamUserFromTicket is null)
                     return badGrant;
 
-                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Steam != null && u.Steam.Id == steamUserFromTicket.Id);
+                user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.Steam != null && u.Steam.Id == steamUserFromTicket.Id);
+                if (user is null)
+                    user = new User { ID = default, Steam = steamUserFromTicket };
             }
 
             if (user is null)
@@ -77,14 +81,18 @@ namespace Sorigin.Controllers
 
             if (authedUser.Discord == null && user.Discord != null)
             {
+                _logger.LogInformation("Migrating a discord account...");
                 authedUser.Discord = user.Discord;
                 user.Discord = null;
             }
             if (authedUser.Steam == null && user.Steam != null)
             {
+                _logger.LogInformation("Migrating a steam account...");
                 authedUser.Steam = user.Steam;
                 user.Steam = null;
             }
+            
+            await _soriginContext.SaveChangesAsync();
 
             if (authedUser.Transfers is null)
                 authedUser.Transfers = new List<Guid>();
@@ -94,12 +102,15 @@ namespace Sorigin.Controllers
                 foreach (var id in user.Transfers)
                     authedUser.Transfers.Add(id);
 
-            _soriginContext.Users.Remove(user);
+            if (user.ID != default)
+                _soriginContext.Users.Remove(user);
+
             _soriginContext.Transfers.Add(new Transfer
             {
                 ID = authedUser.ID,
                 TransferID = user.ID
             });
+
             await _soriginContext.SaveChangesAsync();
 
             return Ok(authedUser);
