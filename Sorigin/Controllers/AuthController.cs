@@ -89,7 +89,7 @@ namespace Sorigin.Controllers
                 if (discordUserFromAccessToken is null)
                     return badGrant;
 
-                user = await _soriginContext.Users.FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUserFromAccessToken.Id);
+                user = await _soriginContext.Users.Include(u => u.Discord).Include(u => u.Steam).FirstOrDefaultAsync(u => u.Discord != null && u.Discord.Id == discordUserFromAccessToken.Id);
                 if (user is null)
                 {
                     user = await CreateUser(discordUserFromAccessToken.Username);
@@ -99,6 +99,11 @@ namespace Sorigin.Controllers
                 if (!user.Role.HasFlag(Role.Owner) && _discordSettings.Roots.Contains(discordUserFromAccessToken.Id))
                 {
                     user.Role = Role.Owner | Role.Admin | Role.Verified;
+                    await _soriginContext.SaveChangesAsync();
+                }
+                if (user.Discord != null && user.Discord.Avatar != discordUserFromAccessToken.Avatar)
+                {
+                    user.Discord.Avatar = discordUserFromAccessToken.Avatar;
                     await _soriginContext.SaveChangesAsync();
                 }
             }

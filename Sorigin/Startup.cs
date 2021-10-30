@@ -10,7 +10,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NodaTime;
+using SixLabors.ImageSharp.Web.DependencyInjection;
+using SixLabors.ImageSharp.Web.Processors;
 using Sorigin.Authorization;
+using Sorigin.Processors;
 using Sorigin.Services;
 using Sorigin.Settings;
 using Sorigin.Workers;
@@ -45,14 +48,17 @@ namespace Sorigin
             var deploymentSettings = Configuration.GetSection(nameof(DeploymentSettings)).Get<DeploymentSettings>();
 
             services.AddHttpClient();
-            
+
+            services.AddScoped<DiscordService>();
+            services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IAuthService, SoriginAuthService>();
             services.AddScoped<ITokenService, SoriginTokenService>();
 
             services.AddSingleton<SteamService>();
-            services.AddSingleton<DiscordService>();
+            services.AddSingleton<IFileStore, FileStore>();
             services.AddSingleton<RNGCryptoServiceProvider>();
             services.AddSingleton<IClock>(SystemClock.Instance);
+            services.AddSingleton<IStreamHasher, StreamHasher>();
             services.AddSingleton<IUserStateCache, UserStateCache>();
             services.AddSingleton<IPasswordHasher, BCryptNETPasswordHasher>();
 
@@ -70,6 +76,12 @@ namespace Sorigin
                     .AllowAnyHeader().AllowAnyMethod();
                 });
             });
+
+            services
+                .AddImageSharp()
+                .ClearProcessors()
+                .AddProcessor<FormatWebProcessor>()
+                .AddProcessor<SimpleResizeWebProcessor>();
 
             services.AddControllers();
 
@@ -103,6 +115,10 @@ namespace Sorigin
             }
 
             app.UseCors(CORSOrigins);
+
+            app.UseDefaultFiles();
+            app.UseImageSharp();
+            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseAuthentication();

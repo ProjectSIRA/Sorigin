@@ -1,4 +1,5 @@
 import type User from '$lib/types/user';
+import { SORIGIN_URL } from './env';
 
 export enum Size {
     Small,
@@ -9,13 +10,13 @@ export enum Size {
 export function getPFP(user: User, size: Size) {
     if (user.discord) {
         if (size === Size.Small) {
-            return user.discord.avatarURL + '?size=128';
+            return formatDiscordPFP(user.discord.avatarURL + '?size=128');
         }
         if (size === Size.Medium) {
-            return user.discord.avatarURL + '?size=256';
+            return formatDiscordPFP(user.discord.avatarURL + '?size=256');
         }
         if (size === Size.Large) {
-            return user.discord.avatarURL + '?size=1024';
+            return formatDiscordPFP(user.discord.avatarURL + '?size=1024');
         }
     } else if (user.steam) {
         if (size === Size.Small) {
@@ -29,6 +30,10 @@ export function getPFP(user: User, size: Size) {
         }
     }
     return 'unknown';
+}
+
+function formatDiscordPFP(url: string) {
+    return SORIGIN_URL + url;
 }
 
 function formatSteamPFP(hash: string) {

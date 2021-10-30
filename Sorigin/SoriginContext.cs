@@ -7,6 +7,7 @@ namespace Sorigin
     public class SoriginContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
+        public DbSet<Media> Media => Set<Media>();
         public DbSet<Transfer> Transfers => Set<Transfer>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 

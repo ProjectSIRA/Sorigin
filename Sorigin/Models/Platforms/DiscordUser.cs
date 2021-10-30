@@ -2,7 +2,7 @@
 
 namespace Sorigin.Models.Platforms
 {
-    public record DiscordUser
+    public class DiscordUser
     {
         public string Id { get; set; } = null!;
         public string Username { get; set; } = null!;
@@ -12,7 +12,12 @@ namespace Sorigin.Models.Platforms
         [JsonPropertyName("avatarURL")]
         public string ProfileURL
         {
-            get => "https://cdn.discordapp.com/avatars/" + Id + "/" + Avatar + (Avatar.Substring(0, 2) == "a_" ? ".gif" : ".png");
+            get
+            {
+                if (Avatar.StartsWith("/"))
+                    return Avatar;
+                return "https://cdn.discordapp.com/avatars/" + Id + "/" + Avatar + (Avatar.Substring(0, 2) == "a_" ? ".gif" : ".png");
+            }
         }
 
         public string FormattedName()
