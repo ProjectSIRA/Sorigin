@@ -7,7 +7,7 @@ export enum Size {
 }
 
 export function getPFP(user: User, size: Size) {
-    if (user.discord !== null) {
+    if (user.discord) {
         if (size === Size.Small) {
             return user.discord.avatarURL + '?size=128';
         }
@@ -17,7 +17,7 @@ export function getPFP(user: User, size: Size) {
         if (size === Size.Large) {
             return user.discord.avatarURL + '?size=1024';
         }
-    } else if (user.steam !== null) {
+    } else if (user.steam) {
         if (size === Size.Small) {
             return formatSteamPFP(user.steam.avatar) + '.jpg';
         }
