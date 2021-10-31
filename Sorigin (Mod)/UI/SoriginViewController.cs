@@ -19,6 +19,8 @@ namespace Sorigin.UI
     {
         private readonly List<(Panel, CanvasGroup)> _panels = new List<(Panel, CanvasGroup)>();
 
+        private bool _stopAnimatingLoginIntro;
+
         [Inject]
         protected readonly SiraLog _siraLog = null!;
 
@@ -105,6 +107,7 @@ namespace Sorigin.UI
 
         private void ProfilePanel_LinkDiscordClicked()
         {
+            _stopAnimatingLoginIntro = true;
             SwitchToPanel(Panel.Login);
         }
 
@@ -132,6 +135,13 @@ namespace Sorigin.UI
                 SwitchToPanel(Panel.Welcome);
                 _profilePanel.SetProfile(user);
                 await Task.Delay(2000);
+
+                if (_stopAnimatingLoginIntro)
+                {
+                    _stopAnimatingLoginIntro = false;
+                    return;
+                }
+
                 SwitchToPanel(Panel.Profile);
             }
             catch (Exception e)
