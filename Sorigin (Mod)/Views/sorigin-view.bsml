@@ -15,7 +15,7 @@
   </vertical>
   <vertical id="welcome-panel" active="false" pad="2" spacing="3" pad-left="6" pad-right="6" size-delta-y="40">
     <macro.as-host host="welcome-host">
-      <text id="welcome-text" text="Hello, Auros." align="Center" font-size="6" />
+      <text id="welcome-text" text="Hello, User." align="Center" font-size="6" />
     </macro.as-host>
   </vertical>
   <vertical id="profile-panel" active="false" pad="2" spacing="3" pad-left="6" pad-right="6" size-delta-y="30" horizontal-fit="PreferredSize">
@@ -28,6 +28,7 @@
           <text id="platforms-text" text="[Platforms]" align="TopLeft" font-size="5" size-delta-y="20" italics="true" />
         </vertical>
       </horizontal>
+	  <button id="link-discord-button" text="Link Discord Account" on-click="link-discord"></button>
     </macro.as-host>
   </vertical>
 </bg>

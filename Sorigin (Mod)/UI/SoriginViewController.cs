@@ -1,6 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using SiraUtil.Tools;
+using SiraUtil.Logging;
 using Sorigin.Models;
 using Sorigin.Services;
 using Sorigin.UI.Panels;
@@ -26,7 +26,7 @@ namespace Sorigin.UI
         protected readonly ISoriginManager _soriginManager = null!;
 
         [Inject]
-        protected readonly TweeningManager _tweeningManager = null!;
+        protected readonly TimeTweeningManager _tweeningManager = null!;
 
         [Inject]
         protected readonly SoriginGrantService _soriginGrantService = null!;
@@ -76,6 +76,11 @@ namespace Sorigin.UI
             _loginCanvas.alpha = 0;
             _welcomeCanvas.alpha = 0;
             _profileCanvas.alpha = 0;
+
+            if (_soriginManager.Player != null)
+            {
+                SoriginManager_LoggedIn(_soriginManager.Player);
+            }
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -83,6 +88,7 @@ namespace Sorigin.UI
             _tweeningManager.KillAllTweens(this);
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             _soriginGrantService.GrantReceived += SoriginGrantService_GrantReceived;
+            _profilePanel.LinkDiscordClicked += ProfilePanel_LinkDiscordClicked;
             _loginPanel.ButtonClicked += LoginPanel_ButtonClicked;
             _soriginManager.LoggedIn += SoriginManager_LoggedIn;
             _authPanel.SetTextVisibility(true);
@@ -97,6 +103,11 @@ namespace Sorigin.UI
             }
         }
 
+        private void ProfilePanel_LinkDiscordClicked()
+        {
+            SwitchToPanel(Panel.Login);
+        }
+
         private void LoginPanel_ButtonClicked()
         {
             SwitchToPanel(Panel.Auth);
@@ -108,6 +119,7 @@ namespace Sorigin.UI
             _tweeningManager.KillAllTweens(this);
             _soriginManager.LoggedIn -= SoriginManager_LoggedIn;
             _loginPanel.ButtonClicked -= LoginPanel_ButtonClicked;
+            _profilePanel.LinkDiscordClicked -= ProfilePanel_LinkDiscordClicked;
             _soriginGrantService.GrantReceived -= SoriginGrantService_GrantReceived;
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
         }

@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.Attributes;
 using HMUI;
 using Sorigin.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
@@ -19,6 +20,11 @@ namespace Sorigin.UI.Panels
         [UIComponent("platforms-text")]
         protected readonly CurvedTextMeshPro _platformsText = null!;
 
+        [UIComponent("link-discord-button")]
+        protected readonly Button _linkDiscordButton = null!;
+
+        public event Action? LinkDiscordClicked;
+
         public void SetProfile(SoriginUser user)
         {
             _nameText.text = user.Username;
@@ -33,6 +39,14 @@ namespace Sorigin.UI.Panels
                 _platformsText.text = platforms.Aggregate((a, b) => $"{a}, {b}");
 
             _pfpImage.SetImage(user.GetProfilePicture());
+
+            _linkDiscordButton.gameObject.SetActive(user.Discord == null);
+        }
+
+        [UIAction("link-discord")]
+        protected void LinkDiscord()
+        {
+            LinkDiscordClicked?.Invoke();
         }
     }
 }

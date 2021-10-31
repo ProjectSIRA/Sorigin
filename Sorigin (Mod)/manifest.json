@@ -5,10 +5,10 @@
   "author": "SIRA",
   "version": "1.0.0",
   "description": "An authorization platform for Beat Saber.",
-  "gameVersion": "1.16.4",
+  "gameVersion": "1.18.2",
   "dependsOn": {
-    "BSIPA": "^4.1.4",
-    "SiraUtil": "^2.4.0",
+    "BSIPA": "^4.2.0",
+    "SiraUtil": "^3.0.0",
     "BeatSaberMarkupLanguage": "^1.4.0"
   }
 }

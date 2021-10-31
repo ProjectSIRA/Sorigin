@@ -1,4 +1,4 @@
-﻿using SiraUtil.Tools;
+﻿using SiraUtil.Logging;
 using System;
 using System.IO;
 using System.Net;
@@ -69,7 +69,7 @@ namespace Sorigin.Services
                 if (string.IsNullOrEmpty(grant))
                 {
                     response.StatusCode = 403;
-                    _siraLog.Warning("Could not find Sorigin authorization grant!");
+                    _siraLog.Warn("Could not find Sorigin authorization grant!");
                     using Stream noGrantStream = new MemoryStream(Encoding.UTF8.GetBytes("Missing authorization grant!"));
                     await noGrantStream.CopyToAsync(ctx.Response.OutputStream);
                     return;

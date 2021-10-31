@@ -17,11 +17,11 @@ namespace Sorigin.Models
             if (Discord != null)
             {
                 if (size == Size.Small)
-                    return Discord.AvatarURL + "?size=128";
+                    return "https://sorigin.org" + Discord.AvatarURL + "?size=128";
                 if (size == Size.Medium)
-                    return Discord.AvatarURL + "?size=256";
+                    return "https://sorigin.org" + Discord.AvatarURL + "?size=256";
                 if (size == Size.Large)
-                    return Discord.Avatar + "?size=1024";
+                    return "https://sorigin.org" + Discord.Avatar + "?size=1024";
             }
             else if (Steam != null)
             {

@@ -1,6 +1,7 @@
 ﻿using IPA.Utilities.Async;
 using Newtonsoft.Json;
-using SiraUtil.Tools;
+using SiraUtil.Logging;
+using SiraUtil.Web;
 using Sorigin.Models;
 using System;
 using System.Threading.Tasks;
@@ -10,9 +11,10 @@ namespace Sorigin.Services
 {
     internal class SoriginManager : ISoriginManager, IInitializable, ITickable, IDisposable
     {
-        private readonly Http _http;
         private readonly SiraLog _siraLog;
+        private readonly IHttpService _httpService;
         private readonly IPlatformUserModel _platformUserModel;
+        private readonly SoriginGrantService _soriginGrantService;
         private readonly SoriginNetworkService _soriginNetworkService;
         private DateTime? _sessionStarted;
         private bool _didSteam;
@@ -23,18 +25,48 @@ namespace Sorigin.Services
         public string? Token { get; private set; }
         public SoriginUser? Player { get; private set; }
 
-        internal SoriginManager(Http http, SiraLog siraLog, IPlatformUserModel platformUserModel, SoriginNetworkService soriginNetworkService)
+        internal SoriginManager(SiraLog siraLog, IHttpService httpService, IPlatformUserModel platformUserModel, SoriginGrantService soriginGrantService, SoriginNetworkService soriginNetworkService)
         {
-            _http = http;
             _siraLog = siraLog;
+            _httpService = httpService;
             _platformUserModel = platformUserModel;
+            _soriginGrantService = soriginGrantService;
             _soriginNetworkService = soriginNetworkService;
         }
 
         public void Initialize()
         {
             _soriginNetworkService.TokenReceived += SoriginNetworkService_TokenReceived;
+            _soriginGrantService.GrantReceived += SoriginGrantService_GrantReceived;
             Task.Run(FetchBySteam);
+        }
+
+        private async void SoriginGrantService_GrantReceived(string grant)
+        {
+            try
+            {
+                // If we've been given a grant and there's already a user logged in, transfer the two accounts.
+                if (Player != null)
+                {
+                    var response = await _httpService.PostAsync($"https://sorigin.org/api/transfer?grant={grant}&platform=discord");
+
+                    if (!response.Successful)
+                    {
+                        _siraLog.Error("Account transfer failed!");
+                        _siraLog.Error(await response.ReadAsStringAsync());
+                        return;
+                    }
+
+
+                    SoriginUser user = JsonConvert.DeserializeObject<SoriginUser>(await response.ReadAsStringAsync());
+                    Player = user;
+                    LoggedIn?.Invoke(Player);
+                }
+            }
+            catch (Exception e)
+            {
+                _siraLog.Error(e);
+            }
         }
 
         private async Task FetchBySteam()
@@ -56,18 +88,19 @@ namespace Sorigin.Services
             try
             {
                 _siraLog.Debug("Token has been received. Fetching user profile.");
-                var response = await _http.GetAsync("https://sorigin.org/api/auth/@me", token);
+                _httpService.Token = token;
+                var response = await _httpService.SendAsync(HTTPMethod.GET, "https://sorigin.org/api/auth/@me");
                 if (!response.Successful)
                     return;
 
                 if (Token != null)
                 {
-                    _siraLog.Logger.Notice("Killing session...");
+                    _siraLog.Notice("Killing session...");
                     MainThread(() => SessionExpired?.Invoke());
                 }
 
                 _siraLog.Debug("Deserialzing user");
-                SoriginUser user = JsonConvert.DeserializeObject<SoriginUser>(response.Content!);
+                SoriginUser user = JsonConvert.DeserializeObject<SoriginUser>(await response.ReadAsStringAsync());
                 _sessionStarted = DateTime.Now;
                 Player = user;
                 Token = token;
@@ -84,7 +117,7 @@ namespace Sorigin.Services
                         if (tokenData.validPlatformEnvironment == PlatformUserAuthTokenData.PlatformEnviroment.Production)
                         {
                             _siraLog.Debug("Trying to add Steam as a platform...");
-                            await _soriginNetworkService.AddSteam(token, tokenData.token);
+                            await _soriginNetworkService.LoginThroughSteam(token, tokenData.token);
                         }
                     }
                 }
@@ -113,6 +146,7 @@ namespace Sorigin.Services
         public void Dispose()
         {
             _soriginNetworkService.TokenReceived -= SoriginNetworkService_TokenReceived;
+            _soriginGrantService.GrantReceived -= SoriginGrantService_GrantReceived;
         }
 
         private static void MainThread(Action action)

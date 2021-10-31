@@ -1,6 +1,4 @@
 ﻿using IPA;
-using IPA.Loader;
-using SiraUtil;
 using SiraUtil.Attributes;
 using SiraUtil.Zenject;
 using Sorigin.Installers;
@@ -12,15 +10,13 @@ namespace Sorigin
     public class Plugin
     {
         [Init]
-        public Plugin(IPALogger logger, Zenjector zenjector, PluginMetadata metadata)
+        public Plugin(IPALogger logger, Zenjector zenjector)
         {
-            zenjector.On<PCAppInit>().Pseudo(Container =>
-            {
-                Container.BindLoggerAsSiraLogger(logger);
-                Container.BindInstance(new UBinder<Plugin, PluginMetadata>(metadata)).AsCached();
-            });
-            zenjector.OnApp<SoriginInstaller>();
-            zenjector.OnMenu<SoriginMenuInstaller>();
+            zenjector.Install<SoriginInstaller>(Location.App);
+            zenjector.Install<SoriginMenuInstaller>(Location.Menu);
+            zenjector.UseMetadataBinder<Plugin>();
+            zenjector.UseLogger(logger);
+            zenjector.UseHttpService();
         }
 
         [OnEnable]
