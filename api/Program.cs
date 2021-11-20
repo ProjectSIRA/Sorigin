@@ -1,15 +1,29 @@
-var builder = WebApplication.CreateBuilder(args);
+using DryIoc;
+using Serilog;
+using Sorigin;
 
-// Add services to the container.
 
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+IContainer container = builder.Host.UseSoriginDryIoC();
+builder.Configuration.UseSoriginLogger();
+
+// -------------------------------------
+// 1: Service and Container Registration
+// -------------------------------------
+
+builder.Host.UseSerilog();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddApplicationInsightsTelemetry();
 
-var app = builder.Build();
+container.RegisterContextedLogger();
 
-// Configure the HTTP request pipeline.
+// --------------------------------
+// 2: Configuring the HTTP Pipeline
+// --------------------------------
+
+WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +31,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
