@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="MaxMind.GeoIP2" Version="4.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
 		<PackageReference Include="DryIoc.dll" Version="4.8.4" />
 		<PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="5.1.0" />

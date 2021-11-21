@@ -30,8 +30,11 @@ internal class SteamService : ISteamService
         if (response.IsSuccessStatusCode)
         {
             SteamResponse<SteamResult> steamResult = (await JsonSerializer.DeserializeAsync<SteamResponse<SteamResult>>(await response.Content.ReadAsStreamAsync()))!;
+            if (steamResult.Response.Error is not null)
+                goto Failed;
             return await GetProfileFromID(ulong.Parse(steamResult.Response.Params!.SteamID));
         }
+    Failed:
         _logger.LogError("Could not authenticate user from the steam API.");
         return null;
     }

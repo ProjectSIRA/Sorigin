@@ -26,10 +26,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 container.RegisterContextedLogger();
 container.RegisterConfig<ISoriginSettings, SoriginSettings>(builder.Configuration, nameof(Sorigin));
+container.RegisterDelegate<ISoriginSettings, IMaxMindSettings>(s => s.MaxMind);
+container.RegisterDelegate<ISoriginSettings, IAdminSettings>(s => s.Admin);
 container.RegisterDelegate<ISoriginSettings, ISteamSettings>(s => s.Steam);
 container.RegisterDelegate<ISoriginSettings, IJWTSettings>(s => s.JWT);
 container.RegisterDelegate(() => Assembly.GetExecutingAssembly().GetName().Version, Reuse.Singleton);
 container.Register<ITokenService, SoriginTokenService>(Reuse.Singleton);
+container.Register<ILocationService, LocationService>(Reuse.Singleton);
 container.Register<ISteamService, SteamService>(Reuse.Singleton);
 
 // --------------------------------
@@ -47,10 +50,10 @@ app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 
 app.UseEndpoints(endpoints =>
 {
+    endpoints.MapControllers();
     endpoints.Map("/api/umbra", async context => await context.Response.WriteAsync("umbra smelly"));
     endpoints.MapFallback(async context => await context.Response.WriteAsJsonAsync(new { error = "Not Found", errorMessage = "Endpoint doesn't exist." }));
     endpoints.Map("/api", async (context) =>
