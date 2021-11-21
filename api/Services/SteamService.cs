@@ -8,7 +8,7 @@ namespace Sorigin.Services;
 public interface ISteamService
 {
     Task<SteamUser?> GetProfile(string ticket);
-    Task<SteamUser?> GetProfileFromID(string steamID);
+    Task<SteamUser?> GetProfileFromID(ulong steamID);
 }
 
 internal class SteamService : ISteamService
@@ -30,13 +30,13 @@ internal class SteamService : ISteamService
         if (response.IsSuccessStatusCode)
         {
             SteamResponse<SteamResult> steamResult = (await JsonSerializer.DeserializeAsync<SteamResponse<SteamResult>>(await response.Content.ReadAsStreamAsync()))!;
-            return await GetProfileFromID(steamResult.Response.Params!.SteamID);
+            return await GetProfileFromID(ulong.Parse(steamResult.Response.Params!.SteamID));
         }
         _logger.LogError("Could not authenticate user from the steam API.");
         return null;
     }
 
-    public async Task<SteamUser?> GetProfileFromID(string steamID)
+    public async Task<SteamUser?> GetProfileFromID(ulong steamID)
     {
         _logger.LogDebug("Getting user profile ({steamID})", steamID);
         HttpResponseMessage response = await _client.GetAsync($"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={_steamSettings.Key}&steamids={steamID}");

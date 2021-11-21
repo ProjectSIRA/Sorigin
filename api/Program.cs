@@ -1,4 +1,5 @@
 using DryIoc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
 using Sorigin;
 using Sorigin.Models;
@@ -7,6 +8,7 @@ using Sorigin.Settings;
 using System.Reflection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+IJWTSettings jwtSettings = builder.Configuration.GetRequiredSection(nameof(Sorigin)).GetRequiredSection("JWT").Get<JWTSettings>();
 IContainer container = builder.Host.UseSoriginDryIoC();
 builder.Configuration.UseSoriginLogger();
 
@@ -15,19 +17,19 @@ builder.Configuration.UseSoriginLogger();
 // -------------------------------------
 
 builder.Host.UseSerilog();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddHttpClient();
+builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+builder.Services.AddAuthorization();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearerConfiguration(jwtSettings.Issuer, jwtSettings.Audience, jwtSettings.Key);
 
 container.RegisterContextedLogger();
 container.RegisterConfig<ISoriginSettings, SoriginSettings>(builder.Configuration, nameof(Sorigin));
-container.RegisterDelegate<ISoriginSettings, ISteamSettings>(s => s.Steam, Reuse.Singleton);
-
+container.RegisterDelegate<ISoriginSettings, ISteamSettings>(s => s.Steam);
+container.RegisterDelegate<ISoriginSettings, IJWTSettings>(s => s.JWT);
 container.RegisterDelegate(() => Assembly.GetExecutingAssembly().GetName().Version, Reuse.Singleton);
-
+container.Register<ITokenService, SoriginTokenService>(Reuse.Singleton);
 container.Register<ISteamService, SteamService>(Reuse.Singleton);
 
 // --------------------------------
@@ -43,6 +45,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
@@ -56,6 +59,7 @@ app.UseEndpoints(endpoints =>
         string versionText = string.Format("{0}.{1}.{2}", version.Major, version.Minor, version.Build);
         await context.Response.WriteAsJsonAsync(new { status = "HEALTHY", version = versionText });
     });
+    endpoints.Map("/api/garsh", async context => await context.Response.WriteAsync((await context.RequestServices.GetRequiredService<ISteamService>().GetProfileFromID(76561198187936410))!.Username));
 });
 
 app.Run();
