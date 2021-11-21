@@ -48,6 +48,7 @@ app.MapControllers();
 
 app.UseEndpoints(endpoints =>
 {
+    endpoints.Map("/api/umbra", async context => await context.Response.WriteAsync("umbra smelly"));
     endpoints.MapFallback(async context => await context.Response.WriteAsJsonAsync(new { error = "Not Found", errorMessage = "Endpoint doesn't exist." }));
     endpoints.Map("/api", async (context) =>
     {
@@ -55,8 +56,6 @@ app.UseEndpoints(endpoints =>
         string versionText = string.Format("{0}.{1}.{2}", version.Major, version.Minor, version.Build);
         await context.Response.WriteAsJsonAsync(new { status = "HEALTHY", version = versionText });
     });
-
-    endpoints.Map("/api/umbra", async context => await context.Response.WriteAsync("umbra smelly"));
 });
 
 app.Run();
