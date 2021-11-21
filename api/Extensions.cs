@@ -1,5 +1,6 @@
 ﻿using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -36,6 +37,14 @@ namespace Sorigin
 
             Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().Enrich.With(new FixedContextWidthLogEnricher(w)).WriteTo.Async(a => a.Console(theme: AnsiConsoleTheme.Literate, outputTemplate: _outputTemplate)).ReadFrom.Configuration(configuration).CreateLogger();
             _serilogLoggerFactory = new(Log.Logger);
+        }
+
+        public static void RegisterConfig<T, TImpl>(this IContainer container, IConfiguration configuration, string sectionName) where TImpl : class, T
+        {
+            IConfigurationSection section = configuration.GetSection(sectionName);
+            container.RegisterInstance(new ConfigurationChangeTokenSource<TImpl>(Options.DefaultName, section));
+            container.RegisterInstance<IConfigureOptions<TImpl>>(new NamedConfigureFromConfigurationOptions<TImpl>(Options.DefaultName, section, delegate { }));
+            container.RegisterDelegate<IOptions<TImpl>, T>(s => s.Value, Reuse.Singleton);
         }
 
         public static void RegisterContextedLogger(this IContainer container)
