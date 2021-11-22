@@ -1,15 +1,24 @@
 ﻿using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
+using MicroElements.Swashbuckle.NodaTime;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Serilog.Sinks.SystemConsole.Themes;
+using Sorigin.Models;
+using Sorigin.Services;
+using Sorigin.Settings;
 using Sorigin.Utilities;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using MLogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -18,6 +27,16 @@ namespace Sorigin;
 internal static class Extensions
 {
     private static SerilogLoggerFactory? _serilogLoggerFactory;
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = CreateSoriginJSONOptions();
+
+    private static JsonSerializerOptions CreateSoriginJSONOptions()
+    {
+        JsonSerializerOptions options = new();
+        options.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+        options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        return options;
+    }
+
     private const string _outputTemplate = "[{Timestamp:HH:mm:ss} | {Level:u3} | {SourceContext}] {Message:lj}{NewLine}{Exception}";
 
     public static MLogger ForContext(Type type)
@@ -117,4 +136,62 @@ internal static class Extensions
         });
     }
 
+    public static async Task MigrateSorigin(this IServiceProvider provider)
+    {
+        using IServiceScope scope = provider.CreateScope();
+        provider = scope.ServiceProvider;
+
+        SoriginContext soriginContext = provider.GetRequiredService<SoriginContext>();
+        try { await soriginContext.Database.MigrateAsync(); } catch { }
+    }
+
+    public static async Task PopulateDefaultImages(this IServiceProvider provider)
+    {
+        using IServiceScope scope = provider.CreateScope();
+        provider = scope.ServiceProvider;
+
+        HttpClient httpClient = provider.GetRequiredService<HttpClient>();
+        IPathSettings pathSettings = provider.GetRequiredService<IPathSettings>();
+        IMediaService mediaService = provider.GetRequiredService<IMediaService>();
+        SoriginContext soriginContext = provider.GetRequiredService<SoriginContext>();
+        IWebHostEnvironment webHostEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
+
+        Media? oculusMedia = await soriginContext.Media.FirstOrDefaultAsync(m => m.Contract == "oculus");
+        Media? fallbackMedia = await soriginContext.Media.FirstOrDefaultAsync(m => m.Contract == "fallback");
+
+        if (oculusMedia is null)
+        {
+            Stream stream = await httpClient.GetStreamAsync(pathSettings.OculusImage);
+            if (stream is null)
+                throw new NullReferenceException("Could not download the oculus image.");
+
+            using MemoryStream ms = new();
+            await stream.CopyToAsync(ms);
+            oculusMedia = await mediaService.Upload("avatars", "default", "oculus.png", ms, "oculus");
+        }
+        if (fallbackMedia is null)
+        {
+            Stream stream = await httpClient.GetStreamAsync(pathSettings.FallbackImage);
+            if (stream is null)
+                throw new NullReferenceException("Could not download the fallback image.");
+
+            using MemoryStream ms = new();
+            await stream.CopyToAsync(ms);
+            fallbackMedia = await mediaService.Upload("avatars", "default", "fallback.png", ms, "fallback");
+        }
+    }
+
+    public static void ConfigureSoriginJSON(this SwaggerGenOptions options)
+    {
+        options.ConfigureForNodaTimeWithSystemTextJson(_jsonSerializerOptions);
+    }
+
+    public static void ConfigureSoriginJSON(this IMvcBuilder builder)
+    {
+        builder.AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+            options.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        });
+    }
 }
