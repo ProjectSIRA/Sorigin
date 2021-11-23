@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sorigin", "api\Sorigin.csproj", "{383D6F4E-D14E-457E-BCCD-31662875F71F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "api\Sorigin.csproj", "{383D6F4E-D14E-457E-BCCD-31662875F71F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mod", "mod\Sorigin (Mod).csproj", "{EB5D3770-A6A4-4F48-9C8F-3A6C49D3A5DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{383D6F4E-D14E-457E-BCCD-31662875F71F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{383D6F4E-D14E-457E-BCCD-31662875F71F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{383D6F4E-D14E-457E-BCCD-31662875F71F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB5D3770-A6A4-4F48-9C8F-3A6C49D3A5DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB5D3770-A6A4-4F48-9C8F-3A6C49D3A5DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB5D3770-A6A4-4F48-9C8F-3A6C49D3A5DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB5D3770-A6A4-4F48-9C8F-3A6C49D3A5DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

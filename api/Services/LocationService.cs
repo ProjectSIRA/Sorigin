@@ -35,6 +35,7 @@ public class LocationService : ILocationService, IDisposable
             AccountId = _maxMindSettings.ID,
             LicenseKey = _maxMindSettings.Key,
             Host = "geolite.info",
+            Timeout = 30000
         }));
     }
 
