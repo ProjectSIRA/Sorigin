@@ -12,18 +12,19 @@
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "next",
+		"bulma": "^0.9.3",
 		"prettier": "^2.4.1",
 		"prettier-plugin-svelte": "^2.4.0",
+		"sass": "^1.42.1",
 		"svelte": "^3.42.6",
 		"svelte-check": "^2.2.6",
 		"svelte-preprocess": "^4.9.8",
 		"tslib": "^2.3.1",
-		"typescript": "^4.4.3",
-		"sass": "^1.42.1",
-		"bulma": "^0.9.3"
+		"typescript": "^4.4.3"
 	},
 	"type": "module",
 	"dependencies": {
-		"axios": "^0.24.0"
+		"axios": "^0.24.0",
+		"@sveltejs/adapter-node": "^1.0.0-next.42"
 	}
 }
