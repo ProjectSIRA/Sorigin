@@ -14,7 +14,7 @@ RUN yarn build
 # Only copy over the Node pieces we need
 # ~> Saves 35MB
 ###
-FROM mhart/alpine-node:slim-12
+FROM mhart/alpine-node:slim-14
 
 WORKDIR /app
 COPY --from=0 /app .
