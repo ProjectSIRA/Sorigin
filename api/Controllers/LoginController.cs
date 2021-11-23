@@ -59,9 +59,26 @@ public class LoginController : ControllerBase
             return NotFound(new Error("no-platform", $"Unable to find a platform with the name '{platform}'"));
 
         string? country = null;
-        var ip = HttpContext.Connection.RemoteIpAddress;
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
         if (ip is not null)
-            country = await _locationService.GetLocationAsync(ip.ToString());
+        {
+            var cloudflareCountry = HttpContext.Request.Headers["cf-ipcountry"];
+            if (cloudflareCountry.Any())
+            {
+                _logger.LogInformation("Successfully got country from Cloudflare header.");
+                country = cloudflareCountry;
+            }
+            else
+            {
+                var forward = HttpContext.Request.Headers["X-Forwarded-For"];
+                if (forward.Any())
+                {
+                    _logger.LogInformation("Acquired IP from Forwarded header.");
+                    ip = forward.First()!;
+                }
+                country = await _locationService.GetLocationAsync(ip);
+            }
+        }
 
         User? user = await _userService.GetUser(id.Value);
         if (user is null)
