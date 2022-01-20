@@ -1,0 +1,20 @@
+/* Variables and mixins declared here will be available in all other SCSS files */ /* https://github.com/jgthms/bulma/issues/1293 */
+$body-overflow-y: auto;
+
+$white: hsl(0, 0%, 4%);
+$white-ter: hsl(0, 0%, 14%);
+$white-bis: hsl(0, 0%, 7%);
+
+$black: hsl(0, 0%, 100%);
+$black-ter: hsl(0, 0%, 96%);
+$black-bis: hsl(0, 0%, 98%);
+
+$grey-darker: hsl(0, 0%, 79%);
+$grey-dark: hsl(0, 0%, 71%);
+$grey: hsl(0, 0%, 52%);
+$grey-lighter: hsl(0, 0%, 29%);
+$grey-lightest: hsl(0, 0%, 21%);
+
+$scheme-main: #1b1b1b;
+$body-background-color: #0e0e0e;
+$shadow: 0 0.5em 1em -0.125em rgba(0, 0, 0, 0.1), 0 0px 0 1px rgba(42, 42, 42, 0.02);
