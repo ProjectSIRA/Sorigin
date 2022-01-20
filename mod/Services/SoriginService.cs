@@ -76,7 +76,7 @@ namespace Sorigin.Services
                 _loggedIn = true;
 
                 OnLogin?.Invoke(User);
-                _siraLog.Info($"Logged in as {soriginUser.Username}.");
+                _siraLog.Notice($"Logged in as {soriginUser.Username}.");
             }
         }
 
