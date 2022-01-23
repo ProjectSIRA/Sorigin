@@ -9,7 +9,7 @@ using Zenject;
 
 namespace Sorigin.Services
 {
-    internal class SoriginService : IAsyncInitializable, ITickable
+    internal class SoriginService : IAsyncInitializable, ITickable, ISoriginService
     {
         private bool _loggedIn = false;
         private readonly SiraLog _siraLog;
@@ -17,7 +17,20 @@ namespace Sorigin.Services
         private readonly IPlatformUserModel _platformUserModel;
 
         public event Action? OnLogout;
-        public event Action<AuthorizedSoriginUser>? OnLogin;
+
+        private event Action<AuthorizedSoriginUser>? OnLoginInternal;
+
+        public event Action<AuthorizedSoriginUser>? OnLogin
+        {
+            add
+            {
+                OnLoginInternal += value;
+                if (_loggedIn && User != null)
+                    value?.Invoke(User);
+            }
+            remove => OnLoginInternal -= value;
+        }
+
         public AuthorizedSoriginUser? User { get; private set; }
 
         public SoriginService(SiraLog siraLog, IHttpService httpService, IPlatformUserModel platformUserModel)
@@ -75,7 +88,7 @@ namespace Sorigin.Services
                 User = new AuthorizedSoriginUser(soriginToken, soriginUser, DateTime.UtcNow.AddHours(4));
                 _loggedIn = true;
 
-                OnLogin?.Invoke(User);
+                OnLoginInternal?.Invoke(User);
                 _siraLog.Notice($"Logged in as {soriginUser.Username}.");
             }
         }
